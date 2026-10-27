@@ -19,7 +19,7 @@ Este repositorio contiene la documentación técnica y las evidencias de configu
 
 A continuación se enlazan los informes de cada una de las tareas situados en la carpeta `docs/`:
 
-* **[Tasca 0 - Entorno Individual (Apte+)](docs/00-entorno-individual.md):** Documentación del montaje en VirtualBox, recursos asignados a las VMs, esquema de red e incidencias técnicas resueltas.
+* **[Tasca 0 - Entorno Individual (Apte+)](docs/00-entorno-virtual.md):** Documentación del montaje en VirtualBox, recursos asignados a las VMs, esquema de red e incidencias técnicas resueltas.
 * **[Tasca 0 - Predicciones Iniciales](docs/00-predicciones.md):** *(Opcional / En desarrollo)*
 * **[Tasca 2 - Inventario y Diagnóstico](docs/02-inventario-diagnostico.md):** *(En desarrollo)*
 * **[Tasca 4 - Diseño de Red e Interconexión](docs/04-diseno-red.md):** *(En desarrollo)*
