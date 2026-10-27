@@ -21,7 +21,7 @@ A continuación se enlazan los informes de cada una de las tareas situados en la
 
 * **[Tasca 0 - Entorno Individual (Apte+)](docs/00-entorno-virtual.md):** Documentación del montaje en VirtualBox, recursos asignados a las VMs, esquema de red e incidencias técnicas resueltas.
 * **[Tasca 0 - Predicciones Iniciales](docs/00-predicciones.md):** *(Opcional / En desarrollo)*
-* **[Tasca 2 - Inventario y Diagnóstico](docs/02-inventario-diagnostico.md):** *(En desarrollo)*
+- **[Tasca 2 - Inventario y Diagnóstico (Apte+)](docs/02-inventari.md):** Inventario de hardware del PC-26 y equipo personal, comparativa de recursos, cuellos de botella y pruebas cuantitativas de E/S y red.
 * **[Tasca 4 - Diseño de Red e Interconexión](docs/04-diseno-red.md):** *(En desarrollo)*
 * **[Tasca 5 - Sistemas y Copias de Seguridad](docs/05-sistemas-copias.md):** *(En desarrollo)*
 * **[Tasca 6 - Almacenamiento y RAID](docs/06-almacenamiento-raid.md):** *(En desarrollo)*
