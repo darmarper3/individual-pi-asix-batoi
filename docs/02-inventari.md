@@ -35,6 +35,17 @@ A continuación se detallan los datos técnicos de hardware recopilados en direc
 | **Interfaz / IP Red Física** | `eth0` (`172.16.222.53/24`) | `eth0` (`192.168.1.130/24`) |
 | **Latencia Red Gateway (`ping`)** | $0,759\text{ ms}$ (promedio, 0% pérdidas) | $0,545\text{ ms}$ (promedio, 0% pérdidas) |
 
+### Evidencias de Terminal (Capturas de Ejecución)
+
+* **Ejecución en el equipo de Clase (PC-26):**
+  > ![Terminal Host Clase](../evidencias/clase.png)
+
+* **Ejecución en el equipo personal de Casa (Parte 1 - CPU, RAM, Discos y Red):**
+  > ![Terminal Host Casa 1](../evidencias/casa1.png)
+
+* **Ejecución en el equipo personal de Casa (Parte 2 - Pruebas `dd` y `ping`):**
+  > ![Terminal Host Casa 2](../evidencias/casa2.png)
+
 ---
 
 ## 3. Diagnóstico de Rendimiento y Análisis de Cuellos de Botella
