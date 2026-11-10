@@ -68,3 +68,49 @@ $ ip a
     inet 192.168.26.1/24 brd 192.168.26.255 scope global enp0s3
 3: enp0s8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
     inet 10.0.3.15/24 brd 10.0.3.255 scope global dynamic noprefixroute enp0s8
+```
+
+### B. Comprobación de la Tabla de Enrutamiento (`ip route`)
+En el cliente de pruebas (`deb-cli`), se confirma la obtención dinámica de IP vía DHCP (`192.168.26.109`) en el segmento `.50-.250` de la LAN, comprobando que la pasarela por defecto (`default via`) apunta directamente a la IP `192.168.26.1`.
+
+![Tabla de Enrutamiento deb-cli](../evidencias/ip_route_show.png)
+
+```bash
+$ ip route show
+default via 192.168.26.1 dev enp0s3 proto dhcp src 192.168.26.109 metric 100 
+192.168.26.0/24 dev enp0s3 proto kernel scope link src 192.168.26.109 metric 100
+```
+
+### C. Pruebas de Conectividad hacia el Exterior (`ping`)
+Comprobación de la salida efectiva hacia la red exterior y el router de enlace (`172.16.222.1`) desde el cliente interno `deb-cli`, garantizando un 0% de pérdida de paquetes a través de la NAT del firewall.
+
+![Prueba Ping deb-cli](../evidencias/t4_ping17216261.png)
+
+```bash
+$ ping 172.16.222.1
+PING 172.16.222.1 (172.16.222.1) 56(84) bytes of data.
+64 bytes from 172.16.222.1: icmp_seq=1 ttl=62 time=1.70 ms
+64 bytes from 172.16.222.1: icmp_seq=2 ttl=62 time=1.91 ms
+64 bytes from 172.16.222.1: icmp_seq=3 ttl=62 time=2.30 ms
+^C
+--- 172.16.222.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2002ms
+rtt min/avg/max/mdev = 1.703/1.970/2.295/0.245 ms
+```
+
+### D. Traza de Paquetes y Saltos de Red (`traceroute`)
+Verificación de la ruta completa realizada por los paquetes desde la máquina cliente `deb-cli`:
+1. **Primer salto:** Pasarela de la LAN interna (`192.168.26.1`).
+2. **Segundo salto:** Red intermedia NAT del hipervisor (`10.0.3.2`).
+3. **Tercer y cuarto salto:** Encaminamiento entre subredes de laboratorio (`192.168.20.1`) hasta alcanzar la pasarela final (`172.16.222.1`).
+
+![Traza de Paquetes Traceroute deb-cli](../evidencias/deb-cli_traceroute_a_17216261.png)
+
+```bash
+$ traceroute 172.16.222.1
+traceroute to 172.16.222.1 (172.16.222.1), 30 hops max, 60 byte packets
+ 1  192.168.26.1 (192.168.26.1)  0.456 ms  0.423 ms  0.416 ms
+ 2  10.0.3.2 (10.0.3.2)  0.767 ms  0.755 ms  0.748 ms
+ 3  192.168.20.1 (192.168.20.1)  1.257 ms  1.250 ms  0.706 ms
+ 4  172.16.222.1 (172.16.222.1)  21.503 ms * 21.464 ms
+```
