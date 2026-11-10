@@ -53,33 +53,18 @@ A continuación se detalla la planificación y dimensionamiento técnico de todo
 
 ## 4. Verificación de Conectividad y Enrutamiento (Apto+)
 
-Para cumplir con los requisitos de ampliación y garantizar el correcto funcionamiento del entorno virtualizado, se han llevado a cabo las siguientes comprobaciones técnicas en las máquinas de la red:
+Para cumplir con los requisitos de ampliación y garantizar el correcto funcionamiento del entorno virtualizado, se han llevado a cabo las siguientes comprobaciones técnicas y recabado evidencias en vivo sobre las máquinas de la red:
 
-### A. Comprobación de la tabla de enrutamiento (`ip route`)
-En cualquiera de los clientes o servidores de la red interna, se verifica que la pasarela por defecto apunta correctamente al firewall activo (`192.168.26.1`):
-```bash
-$ ip route show
-default via 192.168.26.1 dev enp0s3 proto dhcp metric 100 
-192.168.26.0/24 dev enp0s3 proto kernel scope link src 192.168.26.50 metric 100
-```
+### A. Configuración de Interfaces de Red (`ip a`)
+En el servidor de comunicaciones activo (`deb-comm`), se verifica la correcta configuración dual de la red: la interfaz de la LAN (`enp0s3`) asignada estáticamente a la IP `192.168.26.1/24` y la interfaz WAN (`enp0s8`) vinculada por DHCP a la subred `10.0.3.15/24`.
 
-### B. Pruebas de conectividad hacia el exterior (`ping`)
-Comprobación de la resolución de nombres y salida hacia Internet a través del NAT del firewall:
-```bash
-$ ping -c 4 8.8.8.8
-PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
-64 bytes from 8.8.8.8: icmp_seq=1 ttl=116 time=14.2 ms
-64 bytes from 8.8.8.8: icmp_seq=2 ttl=116 time=13.8 ms
---- 8.8.8.8 ping statistics ---
-4 packets transmitted, 4 received, 0% packet loss, time 3005ms
-```
+![Configuración de Interfaces deb-comm](../evidencias/ip_a.png)
 
-### C. Traza de paquetes (`traceroute`)
-Verificación del salto a través de la pasarela interna de la red hacia el nodo exterior:
 ```bash
-$ traceroute -n 8.8.8.8
-traceroute to 8.8.8.8 (8.8.8.8), 30 hops max, 60 byte packets
- 1  192.168.26.1  0.412 ms  0.385 ms  0.312 ms
- 2  10.0.3.2      1.205 ms  1.189 ms  1.150 ms
- 3  8.8.8.8      14.102 ms 13.950 ms 14.011 ms
-```
+$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    inet 127.0.0.1/8 scope host lo
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    inet 192.168.26.1/24 brd 192.168.26.255 scope global enp0s3
+3: enp0s8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    inet 10.0.3.15/24 brd 10.0.3.255 scope global dynamic noprefixroute enp0s8
