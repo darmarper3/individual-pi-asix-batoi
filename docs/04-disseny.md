@@ -65,14 +65,19 @@ Para cumplir con los requisitos de ampliación y garantizar el correcto funciona
 
 Comprobación de la salida efectiva hacia la red exterior y el router de enlace (`172.16.222.1` en el aula / `192.168.1.1` en casa) desde todas las máquinas virtuales de la red interna `192.168.26.0/24`, garantizando un 0% de pérdida de paquetes a través de la NAT del firewall activo:
 
-* **Clúster Proxmox (`N1-PX`, `N2-PX`, `N3-PX`):**
+- **Clúster Proxmox (`N1-PX`, `N2-PX`, `N3-PX`):**
   ![Pings Nodos Proxmox](../evidencias/t4-pings-proxmox.png)
 
-* **Servidores de Infraestructura y Almacenamiento (`win-srvv`, `store-srvv`, `srv-monn`):**
-  ![Pings Servidores](../evidencias/t4-pings-servidores.png)
+- **Servidores de Infraestructura y Almacenamiento (`win-srvv`, `store-srvv`, `srv-monn`):**
+  - **Windows Server 2025 (`win-srvv`):**
+    ![Pings Windows Server](../evidencias/t4-pings-winsrv.png)
+  - **TrueNAS SCALE (`store-srvv`):**
+    ![Pings TrueNAS](../evidencias/t4-pings-truenas.png)
+  - **Servidor Monitorización (`srv-monn`):**
+    ![Pings Monitorización](../evidencias/t4-pings-srvmon.png)
 
-* **Clientes de Red (`win-cli` y `deb-cli`):**
-  ![Prueba Ping deb-cli](../evidencias/t4_ping17216261.png)
+- **Clientes de Red (`win-cli` y `deb-cli`):**
+  ![Prueba Ping deb-cli](../evidencias/t4-pings-debcli.png)
   ![Prueba Ping win-cli](../evidencias/t4-pings-wincli.png)
 
 ---
@@ -81,16 +86,16 @@ Comprobación de la salida efectiva hacia la red exterior y el router de enlace 
 
 Se muestran las tablas de encaminamiento activas en las tres alternativas de servidor de comunicaciones/firewall configuradas, así como en los clientes, verificando la ruta por defecto (`default via`) hacia la interfaz WAN y la ruta directa hacia la red interna «PI» (`192.168.26.0/24`):
 
-* **1. MikroTik RouterOS (`ip route print`):**
+- **1. MikroTik RouterOS (`ip route print`):**
   ![Tabla de enrutamiento MikroTik](../evidencias/t4-ruta-mikrotik.png)
 
-* **2. OPNsense (`netstat -rn` / Interfaz Web Routes):**
+- **2. OPNsense (`netstat -rn` / Interfaz Web Routes):**
   ![Tabla de enrutamiento OPNsense](../evidencias/t4-ruta-opnsense.png)
 
-* **3. Debian 13 con nftables (`deb-comm` - `ip route`):**
+- **3. Debian 13 con nftables (`deb-comm` - `ip route`):**
   ![Tabla de enrutamiento deb-comm](../evidencias/t4-ruta-debcomm.png)
 
-* **4. Comprobación de Tabla de Enrutamiento en Cliente (`deb-cli` - `ip route`):**
+- **4. Comprobación de Tabla de Enrutamiento en Cliente (`deb-cli` - `ip route`):**
   En el cliente de pruebas (`deb-cli`), se confirma la obtención dinámica de IP vía DHCP (`192.168.26.109`) en el segmento `.50-.250` de la LAN, comprobando que la pasarela por defecto apunta directamente a `192.168.26.1`.
   ![Tabla de Enrutamiento deb-cli](../evidencias/ip_route_show.png)
 
@@ -101,32 +106,32 @@ Se muestran las tablas de encaminamiento activas en las tres alternativas de ser
 Detalle visual del direccionamiento IP, máscara de subred y estado de cada adaptador de red configurado en todas las máquinas del laboratorio:
 
 #### 1. Servidores de Comunicaciones (WAN + LAN `192.168.26.1/24`)
-* **MikroTik (`ip address print`):**
+- **MikroTik (`ip address print`):**
   ![Interfaces MikroTik](../evidencias/t4-if-mikrotik.png)
-* **OPNsense (`ifconfig` / Consola):**
+- **OPNsense (`ifconfig` / Consola):**
   ![Interfaces OPNsense](../evidencias/t4-if-opnsense.png)
-* **Debian Firewall (`deb-comm` - `ip a`):**
+- **Debian Firewall (`deb-comm` - `ip a`):**
   Se verifica la correcta configuración dual de la red: la interfaz de la LAN (`enp0s3`) asignada estáticamente a `192.168.26.1/24` y la interfaz WAN (`enp0s8`) vinculada por DHCP a `10.0.3.15/24`.
-  ![Configuración de Interfaces deb-comm](../evidencias/ip_a.png)
+  ![Configuración de Interfaces deb-comm](../evidencias/t4-ip_a-debcomm.png)
 
 #### 2. Clúster de Virtualización Proxmox VE
-* **Nodo 1 (`N1-PX` - `192.168.26.2/24`):**
+- **Nodo 1 (`N1-PX` - `192.168.26.2/24`):**
   ![Interfaces N1-PX](../evidencias/t4-if-n1px.png)
-* **Nodo 2 (`N2-PX` - `192.168.26.3/24`):**
+- **Nodo 2 (`N2-PX` - `192.168.26.3/24`):**
   ![Interfaces N2-PX](../evidencias/t4-if-n2px.png)
-* **Nodo 3 (`N3-PX` - `192.168.26.4/24`):**
+- **Nodo 3 (`N3-PX` - `192.168.26.4/24`):**
   ![Interfaces N3-PX](../evidencias/t4-if-n3px.png)
 
 #### 3. Servidores Empresariales y Almacenamiento
-* **TrueNAS SCALE (`store-srvv` - `192.168.26.5/24`):**
+- **TrueNAS SCALE (`store-srvv` - `192.168.26.5/24`):**
   ![Interfaces TrueNAS](../evidencias/t4-if-truenas.png)
-* **Windows Server 2025 (`win-srvv` - `192.168.26.6/24`):**
+- **Windows Server 2025 (`win-srvv` - `192.168.26.6/24`):**
   ![Interfaces Windows Server](../evidencias/t4-if-winsrv.png)
-* **Servidor Monitorización (`srv-monn` - `192.168.26.7/24`):**
+- **Servidor Monitorización (`srv-monn` - `192.168.26.7/24`):**
   ![Interfaces Lubuntu Monitorización](../evidencias/t4-if-srvmon.png)
 
 #### 4. Clientes de Red (Asignación DHCP `192.168.26.50-250`)
-* **Cliente Windows 11 (`win-cli` - `ipconfig /all`):**
+- **Cliente Windows 11 (`win-cli` - `ipconfig /all`):**
   ![Interfaces Windows 11](../evidencias/t4-if-wincli.png)
-* **Cliente Debian 13 (`deb-cli` - `ip a`):**
+- **Cliente Debian 13 (`deb-cli` - `ip a`):**
   ![Interfaces Debian Cliente](../evidencias/t4-if-debcli.png)
