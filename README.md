@@ -20,7 +20,7 @@ Este repositorio contiene la documentación técnica y las evidencias de configu
 A continuación se enlazan los informes de cada una de las tareas situados en la carpeta `docs/`:
 
 * **[Tasca 0 - Entorno Individual (Apte+)](docs/00-entorno-virtual.md):** Documentación del montaje en VirtualBox, recursos asignados a las VMs, esquema de red e incidencias técnicas resueltas.
-* **[Tasca 0 - Predicciones Iniciales](docs/00-predicciones.md):** *(Opcional / En desarrollo)*
+* **[Tasca 1 - Predicciones Iniciales](docs/00-predicciones.md):** *(Opcional / En desarrollo)*
 - **[Tasca 2 - Inventario y Diagnóstico (Apte+)](docs/02-inventari.md):** Inventario de hardware del PC-26 y equipo personal, comparativa de recursos, cuellos de botella y pruebas cuantitativas de E/S y red.
 * **[Tasca 4 - Diseño de Red e Interconexión](docs/04-disseny.md):** *Esquema de red e interconexión (192.168.26.0/24), parámetros de interfaz, tabla de dimensionamiento de VMs, pasarelas de comunicaciones alternativas y verificación empírica de conectividad y enrutamiento.*
 * **[Tasca 5 - Sistemas y Copias de Seguridad](docs/05-sistemas-copias.md):** *(En desarrollo)*
