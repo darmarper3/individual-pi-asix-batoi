@@ -23,7 +23,7 @@ A continuación se enlazan los informes de cada una de las tareas situados en la
 * **[Tasca 1 - Predicciones Iniciales](docs/00-predicciones.md):** *(Opcional / En desarrollo)*
 - **[Tasca 2 - Inventario y Diagnóstico (Apte+)](docs/02-inventari.md):** Inventario de hardware del PC-26 y equipo personal, comparativa de recursos, cuellos de botella y pruebas cuantitativas de E/S y red.
 * **[Tasca 4 - Diseño de Red e Interconexión](docs/04-disseny.md):** *Esquema de red e interconexión (192.168.26.0/24), parámetros de interfaz, tabla de dimensionamiento de VMs, pasarelas de comunicaciones alternativas y verificación empírica de conectividad y enrutamiento.*
-* **[Tasca 5 - Sistemas y Copias de Seguridad](docs/05-sistemas-copias.md):** *(En desarrollo)*
+* **[Tasca 5 - Sistemas y Copias de Seguridad](docs/05-instalacio.md):** *Implantación, configuración y verificación de pasarelas de comunicaciones, almacenamiento NAS con TrueNAS, clúster Proxmox, centralización de dominios y sistema de copias de seguridad.*
 * **[Tasca 6 - Almacenamiento y RAID](docs/06-almacenamiento-raid.md):** *(En desarrollo)*
 * **[Tasca 7 - Rendimiento y Optimización](docs/07-rendimiento-optimizacion.md):** *(En desarrollo)*
 
