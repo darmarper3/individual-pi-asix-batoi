@@ -34,12 +34,18 @@ Para cumplir con los requisitos de diseño y resiliencia del sistema, se han imp
 
 - **Copia de seguridad y gestión en MikroTik:**
   > ![Backup MikroTik](../evidencias/t5-backup_MicroTik.png)
+  > ![Generar backup MikroTik](../evidencias/t5-backup_mikrotik_generar.png)
+  > ![SCP backup MikroTik](../evidencias/t5-backup_mikrotik_scp.png)
+  > ![Exportar copia MikroTik](../evidencias/t5-exportar_copia_microtik.png)
 
 - **Configuración general de OPNsense:**
   > ![Red OPNsense](../evidencias/t5-dario_opnsense.png)
+  > ![Baja backup OPNsense](../evidencias/t5-baja_bak_opnsense.png)
 
 - **Configuración del servidor de comunicaciones Debian (`deb-comm`):**
   > ![Red deb-comm](../evidencias/t5-dario_debcomm.png)
+  > ![Exportar copia debcomm](../evidencias/t5-exportar_copia_debcomm.png)
+  > ![Backup debcomm](../evidencias/t5-backup_debcomm.png)
 
 ---
 
@@ -60,9 +66,14 @@ Se han configurado los parámetros de red estáticos, los accesos mediante usuar
 
 - **Parámetros de red y conectividad IP:**
   > ![Red store-srvv](../evidencias/t5-network_storesrvv.png)
+  > ![Acceso SSH store-srvv](../evidencias/t5-ssh_storesrvv.png)
 
 - **Creación de usuarios y pools de almacenamiento ZFS:**
+  > ![Usuario store-srvv](../evidencias/t5-user_storesrvv.png)
   > ![Dataset store-srvv](../evidencias/t5-dataset_storesrvv.png)
+  > ![Pool Backups store-srvv](../evidencias/t5-pool_backups_storesrvv.png)
+  > ![Config store-srvv 1](../evidencias/t5-dario_storesrvv_1.png)
+  > ![Config store-srvv 2](../evidencias/t5-dario_storesrvv_2.png)
 
 - **Verificación de la integridad de los datasets de respaldo:**
   > ![Verificación Copias NAS](../evidencias/t5-verificacion_backups_storesrvv.png)
@@ -119,6 +130,12 @@ Se han realizado pruebas de migración de una máquina virtual y un contenedor e
 ### C. Evidencias del Clúster Proxmox
 - **Estado y validación del clúster de tres nodos:**
   > ![Clúster Proxmox](../evidencias/t5-proxmox_cluster.png)
+  > ![Red N1-PX](../evidencias/t5-red_N1-PX.png)
+  > ![Red N2-PX](../evidencias/t5-red_N2-PX.png)
+  > ![Red N3-PX](../evidencias/t5-red_N3-PX.png)
+  > ![Dario N1-PX](../evidencias/t5-dario_N1-PX.png)
+  > ![Dario N2-PX](../evidencias/t5-dario_N2-PX.png)
+  > ![Dario N3-PX](../evidencias/t5-dario_N3-PX.png)
 
 - **Despliegue de servidores virtuales en los nodos:**
   > ![Servidores Proxmox](../evidencias/t5-proxmox_servidores_creados.png)
@@ -156,8 +173,10 @@ Para estructurar la gestión administrativa centralizada de identidades, directi
 ### C. Evidencias de Centralización
 - **Configuración de red y servicios en Windows Server:**
   > ![Red Windows Server](../evidencias/t5-dario_win-srvv.png)
+  > ![Backup win-srvv comandos](../evidencias/t5-backup_win-srvv_comandos.png)
 
 - **Unión e integración del cliente Windows 11 al dominio:**
+  > ![Red win-cli](../evidencias/t5-red_win-cli.png)
   > ![Cliente en Dominio](../evidencias/t5-win-cli_dominio.png)
 
 ---
@@ -168,9 +187,12 @@ Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-
 
 ### A. Evidencias de Infraestructura
 - **Panel de herramientas de supervisión en `srv-monn`:**
+  > ![Red srv-monn](../evidencias/t5-red_srv-monn.png)
+  > ![Dario srv-monn](../evidencias/t5-dario_srv-monn.png)
   > ![Herramientas Monitorización](../evidencias/t5-herramientas_srv-monn.png)
 
 - **Verificación de red en el cliente Linux `deb-cli`:**
+  > ![Dario deb-cli](../evidencias/t5-dario_deb-cli.png)
   > ![Red deb-cli](../evidencias/t5-red_deb-cli.png)
 
 ---
