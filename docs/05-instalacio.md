@@ -24,27 +24,35 @@ Para cumplir con los requisitos de diseño y resiliencia del sistema, se han imp
 ### A. Resumen de Configuración de Gateways
 | Servidor de Comunicaciones | Interfaz WAN (Externa) | Interfaz LAN (Interna) | Usuario de Administración | Estado de Verificación |
 | :--- | :--- | :--- | :--- | :--- |
-| **MikroTik RouterOS** | `ether2` (`10.0.3.15` - DHCP) | `ether1` (`192.168.26.1/24`) | `admin` / Seguretat per defecte | Verificat (Concurrencia única) |
-| **OPNsense** | `wan` (`10.0.3.15` - DHCP) | `lan` (`192.168.26.1/24`) | `root` / `admin` | Verificat (Concurrencia única) |
+| **MikroTik RouterOS** | `ether2` (`10.0.3.15` - DHCP) | `ether1` (`192.168.26.1/24`) | `admin` / Usuario creado | Verificat (Concurrencia única) |
+| **OPNsense** | `wan` (`10.0.3.15` - DHCP) | `lan` (`192.168.26.1/24`) | `dario` / `root` | Verificat (Concurrencia única) |
 | **Debian con nftables (`deb-comm`)** | `enp0s8` (`10.0.3.15` - DHCP) | `enp0s3` (`192.168.26.1/24`) | `dario` (Sudoers) | Verificat (Concurrencia única) |
 
 ### B. Evidencias de Ejecución y Configuración
-- **Configuración de red y pasarela en MikroTik:**
-  > ![Red MikroTik](../evidencias/t5-dario_microtik.png)
 
-- **Copia de seguridad y gestión en MikroTik:**
-  > ![Backup MikroTik](../evidencias/t5-backup_MicroTik.png)
+#### 1. MikroTik RouterOS
+- **Inicio de sesión con el usuario de administración creado:**
+  > ![Sesión Usuario MikroTik](../evidencias/t5-dario_microtik.png)
+
+- **Generación y transferencia de copia de seguridad (`scp`):**
   > ![Generar backup MikroTik](../evidencias/t5-backup_mikrotik_generar.png)
   > ![SCP backup MikroTik](../evidencias/t5-backup_mikrotik_scp.png)
   > ![Exportar copia MikroTik](../evidencias/t5-exportar_copia_microtik.png)
 
-- **Configuración general de OPNsense:**
-  > ![Red OPNsense](../evidencias/t5-dario_opnsense.png)
-  > ![Baja backup OPNsense](../evidencias/t5-baja_bak_opnsense.png)
+#### 2. OPNsense
+- **Configuración del usuario de administración (`dario`):**
+  > ![Usuario Admin OPNsense](../evidencias/t5-dario_opnsense.png)
 
-- **Configuración del servidor de comunicaciones Debian (`deb-comm`):**
-  > ![Red deb-comm](../evidencias/t5-dario_debcomm.png)
-  > ![Exportar copia debcomm](../evidencias/t5-exportar_copia_debcomm.png)
+- **Descarga del respaldo de configuración desde el panel web al cliente:**
+  > ![Descarga Backup OPNsense](../evidencias/t5-baja_bak_opnsense.png)
+
+#### 3. Servidor de Comunicaciones Debian (`deb-comm`)
+- **Creación del usuario de administración (`dario`) e inclusión en el grupo `sudo`:**
+  > ![Usuario Admin deb-comm](../evidencias/t5-dario_debcomm.png)
+
+- **Generación de respaldo mediante script (`.tar.gz`) y transferencia por `scp` a `deb-cli`:**
+  *(Se muestra el contenido del script de copia de seguridad, su ejecución, el listado del fichero comprimido resultante, el cierre de la sesión SSH en `deb-comm` y la descarga segura mediante `scp` desde el cliente `deb-cli`).*
+  > ![Script y SCP Backup deb-comm](../evidencias/t5-exportar_copia_debcomm.png)
   > ![Backup debcomm](../evidencias/t5-backup_debcomm.png)
 
 ---
@@ -208,7 +216,7 @@ Con el propósito de mitigar fallos imprevistos y garantizar la recuperación an
   > ![Backup deb-comm](../evidencias/t5-backup_debcomm.png)
 
 - **Respaldo del dispositivo de comunicaciones MikroTik:**
-  > ![Backup MikroTik](../evidencias/t5-backup_MicroTik.png)
+  > ![Backup MikroTik](../evidencias/t5-backup_mikrotik_scp.png)
 
 - **Respaldo del servidor de monitorización (`srv-monn`):**
   > ![Backup srv-monn](../evidencias/t5-backup_srv-monn.png)
