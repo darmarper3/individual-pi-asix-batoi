@@ -229,45 +229,64 @@ Con el propósito de mitigar fallos imprevistos y garantizar la recuperación an
 
 ---
 
-## 8. Ampliación (Apte+): Automatización Centralizada de Copias de Seguridad
+## 8. Ampliación (Apte+) - Automatización de Respaldos Centralizados en TrueNAS (`192.168.26.5`)
 
-Para dar cumplimiento a los requisitos avanzados de la ampliación del proyecto, se ha implementado un sistema robusto, heterogéneo y centralizado de automatización de copias de seguridad de las configuraciones de los sistemas críticos directamente hacia el repositorio centralizado en TrueNAS (`192.168.26.5`), aplicando una nomenclatura estandarizada y dinámica basada en marcas de tiempo (`backup_sistema_YYYYMMDD_HHMMSS.extension`).
+Como ampliación técnica avanzada, se ha implementado la automatización total de los respaldos de configuración para todas las máquinas de la red (Linux Debian CLI, Linux Debian Com, MikroTik, OPNsense, Windows Server y Windows Client), volcando los ficheros con el formato normalizado `backup_systemname_YYYYMMDD_HHMMSS.extension` directamente en el repositorio centralizado del servidor TrueNAS (`\\192.168.26.5\backups`).
 
-### A. Arquitectura y Componentes del Sistema de Respaldo Centralizado
-- **Destino Centralizado:** Servidor TrueNAS (`store-srvv`, IP `192.168.26.5`) mediante dataset compartido de red y autenticación segura con el usuario `dario`.
-- **Estandarización de Nomenclatura:** Todos los scripts ejecutados en los diferentes sistemas generan ficheros con la estructura estricta `backup_[sistema]_[AAAAMMDD]_[HHMMSS].[ext]`, permitiendo una identificación inmediata y cronológica en el repositorio compartido.
+### A. Automatización en la máquina Debian CLI (`deb-cli`)
+Se ha configurado un script de compresión y volcado automático ejecutado de forma desatendida mediante el planificador nativo del sistema.
+* **Script de Automatización en Debian CLI:**
+  > ![Script Debian CLI](../evidencias/t5-apte_deb-cli_script.png)
+* **Planificador Cron en Debian CLI:**
+  > ![Cron Debian CLI](../evidencias/t5-apte_deb-cli_cron.png)
 
-### B. Evidencias y Automatización por Sistemas
-1. **Windows (Servidor y Clientes):**
-   - Automatización implementada mediante scripts nativos de PowerShell programados en el *Administrador de Tareas* de Windows para el volcado periódico hacia el recurso compartido de red en TrueNAS.
-   - **Evidencias de ejecución:**
-     > ![Script PowerShell Windows Server](../evidencias/t5-apte_winsrvv_script.png)
-     > ![Tarea Programada Windows Server](../evidencias/t5-apte_winsrvv_tarea.png)
-     > ![Script PowerShell Windows Cliente](../evidencias/t5-apte_wincli_script.png)
-     > ![Tarea Programada Windows Cliente](../evidencias/t5-apte_wincli_tarea.png)
+### B. Automatización en la máquina Debian Com (`deb-comm`)
+Se ha implementado el script de respaldo para empaquetar y transferir las reglas de red y configuraciones del cortafuegos Debian.
+* **Script de Automatización en Debian Com:**
+  > ![Script Debian Com](../evidencias/t5-apte_deb-com_script.png)
+* **Planificador Cron en Debian Com:**
+  > ![Cron Debian Com](../evidencias/t5-apte_deb-comm_cron.png)
 
-2. **MikroTik RouterOS:**
-   - Automatización implementada mediante el comando `/tool fetch` vía FTP y la programación de un script integrado en el *Scheduler* del router.
-   - **Evidencias de ejecución:**
-     > ![Script MikroTik](../evidencias/t5-apte_mikrotik_script.png)
-     > ![Programador Scheduler MikroTik](../evidencias/t5-apte_mikrotik_scheduler.png)
+### C. Automatización en el dispositivo MikroTik
+Se configuró un script interno que genera el backup del sistema y lo transmite de forma programada al NAS.
+* **Script de Automatización en MikroTik:**
+  > ![Script MikroTik](../evidencias/t5-apte_mikrotik_script.png)
+* **Planificador Scheduler en MikroTik:**
+  > ![Scheduler MikroTik](../evidencias/t5-apte_mikrotik_scheduler.png)
 
-3. **OPNsense (Cortafuegos):**
-   - Automatización implementada mediante la creación de un script en shell (`backup_auto`) alojado en `/usr/local/bin/` que utiliza `curl` y el protocolo FTP para enviar la configuración actual (`/conf/config.xml`) al NAS de manera desatendida, programado mediante las tareas del sistema operativo en el Cron.
-   - **Evidencias de ejecución:**
-     > ![Script OPNsense backup_auto](../evidencias/t5-apte_opnsense_script.png)
-     > ![Programación Cron OPNsense](../evidencias/t5-apte_opnsense_cron.png)
+### D. Automatización en el cortafuegos OPNsense
+Mediante la creación del script personalizado (`/usr/local/bin/backup_auto`) integrado en el sistema operativo base FreeBSD y vinculado al Cron nativo.
+* **Script de Automatización en OPNsense:**
+  > ![Script OPNsense](../evidencias/t5-apte_opnsense_script.png)
+* **Planificador Cron en OPNsense:**
+  > ![Cron OPNsense](../evidencias/t5-apte_opnsense_cron.png)
 
-4. **Entornos Debian (CLI, Com y Monitorización):**
-   - Scripts automatizados de volcado comprimido (`.tar.gz`) combinados con la inserción de tareas programadas en el servicio `cron` del sistema.
-   - **Evidencias de ejecución:**
-     > ![Script Debian CLI](../evidencias/t5-apte_deb-cli_script.png)
-     > ![Cron Debian CLI](../evidencias/t5-apte_deb-cli_cron.png)
-     > ![Script Debian Com](../evidencias/t5-apte_deb-com_script.png)
-     > ![Cron Debian Com](../evidencias/t5-apte_deb-comm_cron.png)
-     > ![Script Servidor Monitorización](../evidencias/t5-apte_srv-mon_script.png)
-     > ![Cron Servidor Monitorización](../evidencias/t5-apte_srv-monn_cron.png)
+### E. Automatización en el servidor de monitorización (`srv-monn`)
+Se ha programado una tarea para respaldar la monitorización de servicios de forma periódica.
+* **Script de Automatización en Servidor Monitorización:**
+  > ![Script Servidor Monitorización](../evidencias/t5-apte_srv-mon_script.png)
+* **Planificador Cron en Servidor Monitorización:**
+  > ![Cron Servidor Monitorización](../evidencias/t5-apte_srv-monn_cron.png)
 
-### C. Consolidación y Verificación en el Repositorio TrueNAS
-- Como prueba definitiva de la integración heterogénea del sistema, se muestra el estado del recurso compartido centralizado en TrueNAS (`\\192.168.26.5\backups`), donde se comprueba la convivencia ordenada y automatizada de los respaldos procedentes de Windows, MikroTik, OPNsense y los nodos Linux con sus respectivas marcas de tiempo:
+### F. Automatización en la máquina Windows Server (`win-srvv`)
+Se implementó un script en PowerShell para empaquetar la configuración crítica del directorio activo y volcarla al repositorio.
+* **Script de Automatización en Windows Server:**
+  > ![Script Windows Server](../evidencias/t5-apte_winsrvv_script.png)
+* **Tarea Programada en Windows Server:**
+  > ![Tarea Windows Server](../evidencias/t5-apte_winsrvv_tarea.png)
+
+### G. Automatización en la máquina Windows Client (`win-cli`)
+Se configuró un script automatizado para respaldar el perfil de trabajo del cliente administrativo.
+* **Script de Automatización en Windows Client:**
+  > ![Script Windows Client](../evidencias/t5-apte_wincli_script.png)
+* **Tarea Programada en Windows Client:**
+  > ![Tarea Windows Client](../evidencias/t5-apte_wincli_tarea.png)
+
+### H. Verificación del Repositorio Centralizado en TrueNAS (`store-srvv`)
+Se comprueba mediante la creación del dataset y el recurso compartido que todos los respaldos automáticos heterogéneos conviven ordenadamente en el NAS.
+* **Dataset de Respaldos en TrueNAS:**
+  > ![Dataset TrueNAS](../evidencias/t5-apte_truenas_dataset.png)
+* **Recurso Compartido en TrueNAS:**
+  > ![Recurso Compartido TrueNAS](../evidencias/t5-apte_truenas_share.png)
+* **Vista General del Repositorio Consolidado:**
   > ![Repositorio Centralizado TrueNAS](../evidencias/t5-apte_nas_respositorio.png)
