@@ -122,7 +122,7 @@ Detalle visual del direccionamiento IP, máscara de subred y estado de cada adap
   
   ![Interfaces MikroTik](../evidencias/t4-if-mikrotik.png)
 
-- **OPNsense (`ifconfig` / Consola):**
+- **OPNsense (`ip a` / Consola):**
   
   ![Interfaces OPNsense](../evidencias/t4-if-opnsense.png)
 
