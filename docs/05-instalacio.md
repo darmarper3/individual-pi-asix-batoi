@@ -104,36 +104,36 @@ Se han llevado a cabo pruebas de creación de máquinas virtuales y contenedores
 ### B. Análisis Técnico e Investigación Requerida
 
 #### 1. Ventajas e Inconvenientes de la Virtualización de Servidores
-* **Ventajas:**
+- **Ventajas:**
   - **Ahorro de costes y consolidación de hardware:** Permite ejecutar múltiples sistemas operativos y servicios sobre una única máquina física, reduciendo costes de adquisición y consumo eléctrico.
   - **Flexibilidad y Aprovisionamiento Rápido:** Capacidad de crear, clonar y desplegar nuevos servidores en pocos minutos mediante plantillas.
   - **Aislamiento:** Las fallas o caídas en una máquina virtual no afectan al resto de servicios del sistema.
   - **Portabilidad:** Los servidores virtuales son archivos independientes que se pueden mover fácilmente entre diferentes hipervisores.
-* **Inconvenientes:**
+- **Inconvenientes:**
   - **Sobrecarga de rendimiento (*Overhead*):** El hipervisor consume recursos adicionales de CPU y memoria para gestionar la capa de virtualización.
   - **Punto único de fallo físico:** Si el nodo anfitrión físico (*host*) sufre una avería catastrófica sin redundancia, todas las máquinas virtuales alojadas en él quedan inaccesibles simultáneamente.
   - **Complejidad de gestión:** Requiere conocimientos avanzados de redes virtuales, almacenamiento compartido y monitorización.
 
 #### 2. Diferencia entre Contenedores y Máquinas Virtuales (¿Cuándo utilizar cada uno?)
-* **Máquinas Virtuales (VMs):** Emulan un ordenador completo incluyendo hardware virtual, controladores y un sistema operativo invitado (*Guest OS*) completo con su propio núcleo (*kernel*). Consumen muchos más recursos (RAM y disco).
-* **Contenedores (LXC / Docker):** Comparten el núcleo del sistema operativo anfitrión y virtualizan únicamente la capa de usuario. Son extremadamente ligeros y arrancan en segundos.
-* **¿Cuándo utilizar cada uno?**
+- **Máquinas Virtuales (VMs):** Emulan un ordenador completo incluyendo hardware virtual, controladores y un sistema operativo invitado (*Guest OS*) completo con su propio núcleo (*kernel*). Consumen muchos más recursos (RAM y disco).
+- **Contenedores (LXC / Docker):** Comparten el núcleo del sistema operativo anfitrión y virtualizan únicamente la capa de usuario. Son extremadamente ligeros y arrancan en segundos.
+- **¿Cuándo utilizar cada uno?**
   - *Usar Contenedores:* Para aislar aplicaciones web, microservicios, entornos de desarrollo o bases de datos ligeras donde se busca la máxima eficiencia de recursos y velocidad de despliegue.
   - *Usar Máquinas Virtuales:* Cuando necesitamos ejecutar sistemas operativos diferentes (por ejemplo, ejecutar Windows Server sobre un nodo Proxmox Linux), cuando se requiere un aislamiento de seguridad estricto a nivel de núcleo o cuando la aplicación depende estrechamente de controladores de hardware específicos.
 
 #### 3. Migración en Caliente (*Live Migration*)
 Se han realizado pruebas de migración de una máquina virtual y un contenedor entre los nodos del clúster:
-* **Contenedor LXC:** 
+- **Contenedor LXC:** 
   - *Tamaño en disco:* $\approx 1,2\text{ GB}$.
   - *Tiempo de migración:* $\approx 3,4\text{ segundos}$ en red interna de $1\text{ Gbps}$.
-* **Máquina Virtual (VM):**
+- **Máquina Virtual (VM):**
   - *Tamaño en disco:* $\approx 15,0\text{ GB}$.
   - *Tiempo de migración:* $\approx 24,1\text{ segundos}$ (con memoria activa sincronizada).
-* **¿Se puede mejorar?** Sí, utilizando almacenamiento compartido centralizado de alta velocidad (como NFS/iSCSI sobre TrueNAS con discos NVMe o conexiones de red a 10GbE), ya que evita tener que transferir el bloque completo de disco durante la migración en caliente.
+- **¿Se puede mejorar?** Sí, utilizando almacenamiento compartido centralizado de alta velocidad (como NFS/iSCSI sobre TrueNAS con discos NVMe o conexiones de red a 10GbE), ya que evita tener que transferir el bloque completo de disco durante la migración en caliente.
 
 #### 4. Copias de Seguridad del Clúster Proxmox: ¿Qué guardar y qué no?
-* **¿Qué tiene sentido guardar?** Los archivos de configuración de las máquinas virtuales y contenedores (`/etc/pve/qemu-server/` y lxc), las claves de cifrado del clúster, los metadatos y las imágenes completas de los discos de los servicios críticos.
-* **¿Qué NO tiene sentido guardar?** Archivos temporales del sistema (`/tmp/`), cachés de paquetes de instalación del gestor (`/var/cache/apt/archives/`), o trazas de logs obsoletas que únicamente inflan el tamaño de la copia sin aportar valor en la recuperación ante desastres.
+- **¿Qué tiene sentido guardar?** Los archivos de configuración de las máquinas virtuales y contenedores (`/etc/pve/qemu-server/` y lxc), las claves de cifrado del clúster, los metadatos y las imágenes completas de los discos de los servicios críticos.
+- **¿Qué NO tiene sentido guardar?** Archivos temporales del sistema (`/tmp/`), cachés de paquetes de instalación del gestor (`/var/cache/apt/archives/`), o trazas de logs obsoletas que únicamente inflan el tamaño de la copia sin aportar valor en la recuperación ante desastres.
 
 ### C. Evidencias del Clúster Proxmox
 - **Estado y validación del clúster de tres nodos:**
@@ -168,15 +168,15 @@ Para estructurar la gestión administrativa centralizada de identidades, directi
 ### B. Análisis e Investigación Requerida
 
 #### 1. ¿Qué es un Dominio y qué utilidad aporta a la empresa?
-* **Definición de Dominio:** Es una agrupación lógica de equipos, usuarios, impresoras y recursos de red administrados centralizadamente desde una base de datos central (Directorio Activo) controlada por uno o varios controladores de dominio.
-* **Utilidad y Ventajas para la Empresa:**
+- **Definición de Dominio:** Es una agrupación lógica de equipos, usuarios, impresoras y recursos de red administrados centralizadamente desde una base de datos central (Directorio Activo) controlada por uno o varios controladores de dominio.
+- **Utilidad y Ventajas para la Empresa:**
   - **Gestión centralizada de identidades:** Un usuario puede iniciar sesión en cualquier equipo de la red corporativa utilizando sus credenciales únicas.
   - **Políticas de Grupo (GPOs):** Permiten aplicar configuraciones de seguridad homogéneas, restricciones de software, despliegue automático de programas y políticas de contraseñas a todos los equipos y empleados de manera instantánea.
   - **Seguridad y Control de Acceso:** Centraliza los permisos sobre recursos compartidos y carpetas de red, evitando fugas de información.
 
 #### 2. Copias de Seguridad en el Controlador de Dominio: ¿Qué copiar y qué no?
-* **¿Qué es interesante copiar?** La base de datos de Active Directory (`NTDS.dit`), la estructura del SYSVOL (scripts y directivas de grupo), el registro del sistema y las zonas de resolución DNS.
-* **¿Qué NO es interesante copiar?** Archivos temporales del perfil de usuario, registros de eventos (*event logs*) antiguos sin relevancia legal o carpetas de caché local de aplicaciones.
+- **¿Qué es interesante copiar?** La base de datos de Active Directory (`NTDS.dit`), la estructura del SYSVOL (scripts y directivas de grupo), el registro del sistema y las zonas de resolución DNS.
+- **¿Qué NO es interesante copiar?** Archivos temporales del perfil de usuario, registros de eventos (*event logs*) antiguos sin relevancia legal o carpetas de caché local de aplicaciones.
 
 ### C. Evidencias de Centralización
 - **Configuración de red y servicios en Windows Server:**
@@ -229,7 +229,45 @@ Con el propósito de mitigar fallos imprevistos y garantizar la recuperación an
 
 ---
 
-## 8. Ampliación (Apte+)
+## 8. Ampliación (Apte+): Automatización Centralizada de Copias de Seguridad
 
-> **Estado Actual:** Apartado reservado para la implantación de mecanismos avanzados de automatización de respaldos (scripts de volcado personalizados combinados con la planificación de tareas mediante `cron` o servicios equivalentes) y la automatización de la recuperación de servicios críticos. 
-> **Planificación:** Pendiente de concretar las directrices técnicas específicas con el profesorado para su posterior ejecución y documentación en el repositorio.
+Para dar cumplimiento a los requisitos avanzados de la ampliación del proyecto, se ha implementado un sistema robusto, heterogéneo y centralizado de automatización de copias de seguridad de las configuraciones de los sistemas críticos directamente hacia el repositorio centralizado en TrueNAS (`192.168.26.5`), aplicando una nomenclatura estandarizada y dinámica basada en marcas de tiempo (`backup_sistema_YYYYMMDD_HHMMSS.extension`).
+
+### A. Arquitectura y Componentes del Sistema de Respaldo Centralizado
+- **Destino Centralizado:** Servidor TrueNAS (`store-srvv`, IP `192.168.26.5`) mediante dataset compartido de red y autenticación segura con el usuario `dario`.
+- **Estandarización de Nomenclatura:** Todos los scripts ejecutados en los diferentes sistemas generan ficheros con la estructura estricta `backup_[sistema]_[AAAAMMDD]_[HHMMSS].[ext]`, permitiendo una identificación inmediata y cronológica en el repositorio compartido.
+
+### B. Evidencias y Automatización por Sistemas
+1. **Windows (Servidor y Clientes):**
+   - Automatización implementada mediante scripts nativos de PowerShell programados en el *Administrador de Tareas* de Windows para el volcado periódico hacia el recurso compartido de red en TrueNAS.
+   - **Evidencias de ejecución:**
+     > ![Script PowerShell Windows Server](../evidencias/t5-apte_winsrvv_script.png)
+     > ![Tarea Programada Windows Server](../evidencias/t5-apte_winsrvv_tarea.png)
+     > ![Script PowerShell Windows Cliente](../evidencias/t5-apte_wincli_script.png)
+     > ![Tarea Programada Windows Cliente](../evidencias/t5-apte_wincli_tarea.png)
+
+2. **MikroTik RouterOS:**
+   - Automatización implementada mediante el comando `/tool fetch` vía FTP y la programación de un script integrado en el *Scheduler* del router.
+   - **Evidencias de ejecución:**
+     > ![Script MikroTik](../evidencias/t5-apte_mikrotik_script.png)
+     > ![Programador Scheduler MikroTik](../evidencias/t5-apte_mikrotik_scheduler.png)
+
+3. **OPNsense (Cortafuegos):**
+   - Automatización implementada mediante la creación de un script en shell (`backup_auto`) alojado en `/usr/local/bin/` que utiliza `curl` y el protocolo FTP para enviar la configuración actual (`/conf/config.xml`) al NAS de manera desatendida, programado mediante las tareas del sistema operativo en el Cron.
+   - **Evidencias de ejecución:**
+     > ![Script OPNsense backup_auto](../evidencias/t5-apte_opnsense_script.png)
+     > ![Programación Cron OPNsense](../evidencias/t5-apte_opnsense_cron.png)
+
+4. **Entornos Debian (CLI, Com y Monitorización):**
+   - Scripts automatizados de volcado comprimido (`.tar.gz`) combinados con la inserción de tareas programadas en el servicio `cron` del sistema.
+   - **Evidencias de ejecución:**
+     > ![Script Debian CLI](../evidencias/t5-apte_deb-cli_script.png)
+     > ![Cron Debian CLI](../evidencias/t5-apte_deb-cli_cron.png)
+     > ![Script Debian Com](../evidencias/t5-apte_deb-com_script.png)
+     > ![Cron Debian Com](../evidencias/t5-apte_deb-comm_cron.png)
+     > ![Script Servidor Monitorización](../evidencias/t5-apte_srv-mon_script.png)
+     > ![Cron Servidor Monitorización](../evidencias/t5-apte_srv-monn_cron.png)
+
+### C. Consolidación y Verificación en el Repositorio TrueNAS
+- Como prueba definitiva de la integración heterogénea del sistema, se muestra el estado del recurso compartido centralizado en TrueNAS (`\\192.168.26.5\backups`), donde se comprueba la convivencia ordenada y automatizada de los respaldos procedentes de Windows, MikroTik, OPNsense y los nodos Linux con sus respectivas marcas de tiempo:
+  > ![Repositorio Centralizado TrueNAS](../evidencias/t5-apte_nas_respositorio.png)
