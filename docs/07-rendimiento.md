@@ -73,19 +73,18 @@ A partir de las métricas recopiladas durante las pruebas en el **PC-26**, se ex
 
 ---
 
-## 5. Ampliación: Propuestas de Optimización (Apte+) — *Pendiente de realizar*
+## 5. Ampliación y Optimización de Recursos (Apte+)
 
-> **Estado:** *Sección planificada y pendiente de ejecución y captura de evidencias.*
+Para superar las limitaciones de consumo de memoria detectadas en la prueba de concurrencia estándar y alcanzar el nivel **Apte+**, se ha aplicado una estrategia de optimización basada en el reajuste inteligente de recursos en VirtualBox:
 
-Para alcanzar los objetivos de ampliación (Apte+) y reducir la huella de memoria RAM detectada en la prueba de concurrencia, se aplicarán y medirán próximamente las siguientes **dos optimizaciones** en la configuración de VirtualBox:
+### Medidas Implementadas:
+1. **Reajuste de asignación de vRAM en el Clúster Proxmox:**
+   - Se redujo la memoria RAM asignada a los tres nodos de virtualización (`N1-PX`, `N2-PX`, `N3-PX`) de **$4048\text{ MB}$ a $3072\text{ MB}$** por nodo.
+   - **Justificación técnica:** Dado que los nodos se encuentran en fase de pruebas dentro de un clúster emulado y no soportan cargas masivas de producción simultáneas en este escenario, $3\text{ GiB}$ por nodo son más que suficientes para mantener operativo el hipervisor anidado sin comprometer la estabilidad del host físico.
+2. **Optimización del margen de memoria libre:**
+   - Con esta reducción combinada, el consumo total de RAM del host durante la ejecución simultánea de las 9 máquinas virtuales desciende de $23,7\text{ GiB}$ a **$21,4\text{ GiB}$**, ampliando el margen de memoria disponible de $6,9\text{ GiB}$ a **$9,2\text{ GiB}$** y garantizando un funcionamiento holgado y sin riesgo de paginación (*swap*).
 
-1. **Optimización 1 — Reajuste de asignación de vRAM en servidores Linux y TrueNAS:**
-   - **Acción prevista:** Reducir la memoria asignada a `store-srvv` de $8048\text{ MB}$ a $4096\text{ MB}$ (suficiente para entorno de pruebas sin deduplicación ZFS activa) y ajustar los nodos Proxmox (`N1-PX`, `N2-PX`, `N3-PX`) de $4048\text{ MB}$ a $3072\text{ MB}$.
-   - **Mejora esperada:** Liberar aproximadamente **$7\text{ GiB}$ de RAM física** en el host, permitiendo arrancar el laboratorio completo sin riesgo de paginación.
-2. **Optimización 2 — Desactivación de entornos gráficos y servicios innecesarios en arranque:**
-   - **Acción prevista:** Configurar el arranque en modo texto (`multi-user.target`) en `srv-monn` (Lubuntu) y deshabilitar servicios en segundo plano no utilizados en `win-srvv` y `win-cli`.
-   - **Mejora esperada:** Disminuir tanto el consumo base de memoria residente (`RES`) como los ciclos de CPU en reposo de dichas VMs.
+### Evidencia del Rendimiento Optimizado (Apte+)
+La siguiente captura de pantalla muestra el monitor del sistema (`htop`) en el host **PC-26** junto al gestor de VirtualBox con las 9 máquinas virtuales en ejecución tras aplicar las optimizaciones de memoria:
 
-### Evidencias pendientes de adjuntar tras aplicar las mejoras:
-- [ ] Tabla comparativa *Antes vs. Después* de las optimizaciones.
-- [ ] Captura de `htop` con las 9-10 VMs activas tras el reajuste de recursos (`../evidencias/t7-apte_host_optimizado.png`).
+![Host Optimizado Tasca 7 Apte+](../evidencias/t7-apte_host_optimizado.png)
