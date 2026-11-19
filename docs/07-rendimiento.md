@@ -75,16 +75,17 @@ A partir de las métricas recopiladas durante las pruebas en el **PC-26**, se ex
 
 ## 5. Ampliación y Optimización de Recursos (Apte+)
 
-Para superar las limitaciones de consumo de memoria detectadas en la prueba de concurrencia estándar y alcanzar el nivel **Apte+**, se ha aplicado una estrategia de optimización basada en el reajuste inteligente de recursos en VirtualBox:
+Para superar las limitaciones de consumo de recursos detectadas en la prueba de concurrencia estándar y alcanzar el nivel **Apte+**, se ha aplicado una estrategia de optimización basada en el reajuste inteligente tanto de la memoria RAM como de las vCPU en VirtualBox:
 
 ### Medidas Implementadas:
-1. **Reajuste de asignación de vRAM en el Clúster Proxmox:**
+1. **Reajuste de asignación de vRAM y vCPU en el Clúster Proxmox:**
    - Se redujo la memoria RAM asignada a los tres nodos de virtualización (`N1-PX`, `N2-PX`, `N3-PX`) de **$4048\text{ MB}$ a $3072\text{ MB}$** por nodo.
-   - **Justificación técnica:** Dado que los nodos se encuentran en fase de pruebas dentro de un clúster emulado y no soportan cargas masivas de producción simultáneas en este escenario, $3\text{ GiB}$ por nodo son más que suficientes para mantener operativo el hipervisor anidado sin comprometer la estabilidad del host físico.
-2. **Optimización del margen de memoria libre:**
-   - Con esta reducción combinada, el consumo total de RAM del host durante la ejecución simultánea de las 9 máquinas virtuales desciende de $23,7\text{ GiB}$ a **$21,4\text{ GiB}$**, ampliando el margen de memoria disponible de $6,9\text{ GiB}$ a **$9,2\text{ GiB}$** y garantizando un funcionamiento holgado y sin riesgo de paginación (*swap*).
+   - Adicionalmente, se ajustó la asignación de procesadores virtuales (**vCPU**) de **2 a 1 vCPU** en cada uno de los tres nodos del clúster.
+   - **Justificación técnica:** Al encontrarse los nodos en un entorno de pruebas anidado sin cargas masivas de producción concurrentes, 1 vCPU y $3\text{ GiB}$ de RAM por nodo resultan completamente suficientes para mantener la infraestructura del clúster activa, reduciendo la contención de hilos y la huella de memoria en el host físico.
+2. **Optimización del margen operativo:**
+   - Con esta doble reducción combinada, el consumo total de RAM del host durante la ejecución simultánea de las 9 máquinas virtuales desciende de $23,7\text{ GiB}$ a **$21,4\text{ GiB}$**[cite: 10], ampliando el margen de memoria disponible de $6,9\text{ GiB}$ a **$9,2\text{ GiB}$**[cite: 10] y garantizando un funcionamiento holgado sin paginación (*swap*).
 
 ### Evidencia del Rendimiento Optimizado (Apte+)
-La siguiente captura de pantalla muestra el monitor del sistema (`htop`) en el host **PC-26** junto al gestor de VirtualBox con las 9 máquinas virtuales en ejecución tras aplicar las optimizaciones de memoria:
+La siguiente captura de pantalla muestra el monitor del sistema (`htop`) en el host **PC-26** junto al gestor de VirtualBox con las 9 máquinas virtuales en ejecución tras aplicar las optimizaciones de RAM y vCPU:
 
-![Host Optimizado Tasca 7 Apte+](../evidencias/t7-apte_host_optimizado.png)
+![Host Optimizado Tasca 7 Apte+](../evidencias/t7-apte_host_optimizado.jpg)
