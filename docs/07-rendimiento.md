@@ -88,4 +88,4 @@ Para superar las limitaciones de consumo de recursos detectadas en la prueba de 
 ### Evidencia del Rendimiento Optimizado (Apte+)
 La siguiente captura de pantalla muestra el monitor del sistema (`htop`) en el host **PC-26** junto al gestor de VirtualBox con las 9 máquinas virtuales en ejecución tras aplicar las optimizaciones de RAM y vCPU:
 
-![Host Optimizado Tasca 7 Apte+](../evidencias/t7-apte_host_optimizado.jpg)
+![Host Optimizado Tasca 7 Apte+](../evidencias/t7-apte_host_optimizado.png)
