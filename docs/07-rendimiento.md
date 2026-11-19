@@ -54,7 +54,7 @@ Al encender de forma aislada la máquina **TrueNAS SCALE (`store-srvv`)**, la me
 ### C. Prueba de Concurrencia y Límite Operativo (`9` VMs simultáneas)
 Se procedió a arrancar de forma simultánea **9 máquinas virtuales** del laboratorio: los tres nodos del clúster Proxmox (`N1-PX`, `N2-PX`, `N3-PX`), el router `MikroTik`, los servidores `win-srvv`, `store-srvv` y `srv-monn`, además de los dos clientes (`deb-cli` y `win-cli`).
 
-![Prueba de Concurrencia de 9 VMs](../evidencias/t7_host_concurrencia.jpg)
+![Prueba de Concurrencia de 9 VMs](../evidencias/t7_host_concurrencia.png)
 
 ---
 
