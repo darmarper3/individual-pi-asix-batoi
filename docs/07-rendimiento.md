@@ -13,10 +13,11 @@
 
 El objetivo de esta actividad es evaluar el consumo de recursos físicos del equipo anfitrión (*host*) (**PC-26**, dotado con procesador Intel Core Ultra 5 125H de 14 núcleos / 18 hilos y $30,6\text{ GiB}$ de memoria RAM disponible) bajo distintos escenarios de carga de virtualización en **VirtualBox**.
 
-Para ello, se han llevado a cabo tres fases de medición empírica utilizando comandos nativos de Linux (`free -h`, `top` y `htop`):
+Para ello, se han llevado a cabo tres fases de medición empírica utilizando comandos nativos de Linux (`free -h`, `top` y `htop`), culminando con una fase de optimización avanzada (**Apte+**):
 1. **Línea base en reposo:** Consumo nativo del host sin máquinas virtuales activas.
 2. **Aislamiento de carga:** Impacto individual al ejecutar una única VM exigente (`store-srvv`).
 3. **Concurrencia y saturación:** Encendido simultáneo progresivo de las máquinas virtuales del proyecto hasta evaluar el umbral operativo.
+4. **Optimización (Apte+):** Reajuste de recursos (RAM y vCPU) en el hipervisor para mejorar la eficiencia global del sistema.
 
 ---
 
@@ -24,14 +25,14 @@ Para ello, se han llevado a cabo tres fases de medición empírica utilizando co
 
 A continuación se presenta la tabla comparativa con las métricas reales obtenidas en cada escenario de prueba:
 
-| Métrica del Host | Escenario 1: Reposo (Línea Base) | Escenario 2: VM Aislada (`store-srvv`) | Escenario 3: Concurrencia (VMs activas incl. debian-dades y debian-serveis) |
-| :--- | :---: | :---: | :---: |
-| **Máquinas Virtuales Activas** | `0` | `1` (`store-srvv` - TrueNAS) | (`N1-PX`, `N2-PX`, `N3-PX`, `MikroTik`, `win-srvv`, `store-srvv`, `srv-monn`, `deb-cli`, `win-cli`, `debian-dades`, `debian-serveis`) |
-| **Memoria RAM Usada** | $3,3\text{ GiB} / 30\text{ GiB}$ ($11\%$) | $7,22\text{ GiB} / 30,6\text{ GiB}$ ($23,6\%$) | $23,7\text{ GiB} / 30,6\text{ GiB}$ ($77,5\%$) |
-| **Memoria RAM Disponible** | $27\text{ GiB}$ | $23,38\text{ GiB}$ | $6,9\text{ GiB}$ |
-| **Uso de Memoria Swap** | $0\text{ B} / 3,0\text{ GiB}$ | $0\text{ K} / 3,00\text{ GiB}$ | $0\text{ K} / 3,00\text{ GiB}$ |
-| **Carga Media CPU (*Load Average*)** | `0.70, 0.43, 0.31` | `0.77, 0.71, 0.60` | `2.76, 1.62, 0.97` |
-| **Porcentaje CPU en Reposo (`id`)** | $98,5\%$ libre | $\approx 90\%$ libre (picos puntuales en hilo 1) | $\approx 85\% - 90\%$ libre (carga repartida en 18 hilos) |
+| Métrica del Host | Escenario 1: Reposo (Línea Base) | Escenario 2: VM Aislada (`store-srvv`) | Escenario 3: Concurrencia (VMs activas incl. `debian-dades` y `debian-serveis`) | Escenario 4: Concurrencia Optimizada (Apte+) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Máquinas Virtuales Activas** | `0` | `1` (`store-srvv` - TrueNAS) | `N1-PX`, `N2-PX`, `N3-PX`, `MikroTik`, `win-srvv`, `store-srvv`, `srv-monn`, `deb-cli`, `win-cli`, `debian-dades`, `debian-serveis` | Mismo entorno optimizado (RAM y vCPU ajustadas) |
+| **Memoria RAM Usada** | $3,3\text{ GiB} / 30\text{ GiB}$ ($11\%$) | $7,22\text{ GiB} / 30,6\text{ GiB}$ ($23,6\%$) | $23,7\text{ GiB} / 30,6\text{ GiB}$ ($77,5\%$) | **$21,4\text{ GiB} / 30,6\text{ GiB}$** ($69,9\%$) |
+| **Memoria RAM Disponible** | $27\text{ GiB}$ | $23,38\text{ GiB}$ | $6,9\text{ GiB}$ | **$9,2\text{ GiB}$** |
+| **Uso de Memoria Swap** | $0\text{ B} / 3,0\text{ GiB}$ | $0\text{ K} / 3,00\text{ GiB}$ | $0\text{ K} / 3,00\text{ GiB}$ | $0\text{ K} / 3,00\text{ GiB}$ |
+| **Carga Media CPU (*Load Average*)** | `0.70, 0.43, 0.31` | `0.77, 0.71, 0.60` | `2.76, 1.62, 0.97` | `3.00, 2.23, 1.59` |
+| **Porcentaje CPU en Reposo (`id`)** | $98,5\%$ libre | $\approx 90\%$ libre (picos puntuales en hilo 1) | $\approx 85\% - 90\%$ libre (carga repartida en 18 hilos) | $\approx 80\% - 85\%$ libre (carga repartida en 18 hilos) |
 
 ---
 
@@ -54,7 +55,7 @@ Al encender de forma aislada la máquina **TrueNAS SCALE (`store-srvv`)**, la me
 ### C. Prueba de Concurrencia y Límite Operativo (Concurrencia ampliada)
 Se procedió a arrancar de forma simultánea el conjunto de máquinas virtuales del laboratorio, incluyendo los tres nodos del clúster Proxmox (`N1-PX`, `N2-PX`, `N3-PX`), el router `MikroTik`, los servidores `win-srvv`, `store-srvv`, `srv-monn`, `debian-dades`, `debian-serveis` y los clientes (`deb-cli` y `win-cli`).
 
-![Prueba de Concurrencia de 9 VMs](../evidencias/t7_host_concurrencia.png)
+![Prueba de Concurrencia de VMs](../evidencias/t7_host_concurrencia.png)
 
 ---
 
@@ -83,7 +84,7 @@ Para superar las limitaciones de consumo de recursos detectadas en la prueba de 
    - Adicionalmente, se ajustó la asignación de procesadores virtuales (**vCPU**) de **2 a 1 vCPU** en cada uno de los tres nodos del clúster.
    - **Justificación técnica:** Al encontrarse los nodos en un entorno de pruebas anidado sin cargas masivas de producción concurrentes, 1 vCPU y $3\text{ GiB}$ de RAM por nodo resultan completamente suficientes para mantener la infraestructura del clúster activa, reduciendo la contención de hilos y la huella de memoria en el host físico.
 2. **Optimización del margen operativo:**
-   - Con esta doble reducción combinada, el consumo total de RAM del host durante la ejecución simultánea del entorno desciende de $23,7\text{ GiB}$ a **$21,4\text{ GiB}$**[cite: 10], ampliando el margen de memoria disponible de $6,9\text{ GiB}$ a **$9,2\text{ GiB}$**[cite: 10] y garantizando un funcionamiento holgado sin paginación (*swap*).
+   - Con esta doble reducción combinada, el consumo total de RAM del host durante la ejecución simultánea del entorno desciende de $23,7\text{ GiB}$ a **$21,4\text{ GiB}$**, ampliando el margen de memoria disponible de $6,9\text{ GiB}$ a **$9,2\text{ GiB}$** y garantizando un funcionamiento holgado sin paginación (*swap*).
 
 ### Evidencia del Rendimiento Optimizado (Apte+)
 La siguiente captura de pantalla muestra el monitor del sistema (`htop`) en el host **PC-26** junto al gestor de VirtualBox con las máquinas virtuales en ejecución tras aplicar las optimizaciones de RAM y vCPU:
