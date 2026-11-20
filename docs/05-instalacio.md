@@ -189,15 +189,25 @@ Para estructurar la gestión administrativa centralizada de identidades, directi
 
 ---
 
-## 6. Servidores de Infraestructura y Monitorización (`srv-monn` y `deb-cli`)
+## 6. Servidores de Infraestructura, Servicios y Monitorización (`srv-monn`, `deb-cli`, `debian-serveis` y `debian-dades`)
 
-Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-monn`) dotado de herramientas de supervisión activa de recursos, junto con el despliegue del entorno cliente de pruebas y validación operativo (`deb-cli`).
+Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-monn`), los servidores dedicados a servicios (`debian-serveis`) y gestión de datos (`debian-dades`) dotados de herramientas de supervisión y administración activa, junto con el despliegue del entorno cliente de pruebas y validación operativo (`deb-cli`).
 
 ### A. Evidencias de Infraestructura
 - **Panel de herramientas de supervisión en `srv-monn`:**
   > ![Red srv-monn](../evidencias/t5-red_srv-monn.png)
   > ![Dario srv-monn](../evidencias/t5-dario_srv-monn.png)
   > ![Herramientas Monitorización](../evidencias/t5-herramientas_srv-monn.png)
+
+- **Configuración de red, usuarios y herramientas en `debian-serveis`:**
+  > ![Red debian-serveis](../evidencias/t5-red_debian-serveis.png)
+  > ![Dario debian-serveis](../evidencias/t5-dario_debian-serveis.png)
+  > ![Herramientas debian-serveis](../evidencias/t5-herramientas_debian-serveis.png)
+
+- **Configuración de red, usuarios y herramientas en `debian-dades`:**
+  > ![Red debian-dades](../evidencias/t5-red_debian-dades.png)
+  > ![Dario debian-dades](../evidencias/t5-dario_debian-dades.png)
+  > ![Herramientas debian-dades](../evidencias/t5-herramientas_debian-dades.png)
 
 - **Verificación de red en el cliente Linux `deb-cli`:**
   > ![Dario deb-cli](../evidencias/t5-dario_deb-cli.png)
@@ -226,6 +236,12 @@ Con el propósito de mitigar fallos imprevistos y garantizar la recuperación an
 
 - **Respaldo del controlador de dominio (`win-srvv`):**
   > ![Backup win-srvv](../evidencias/t5-backup_win-srvv.png)
+
+- **Respaldo del servidor de servicios (`debian-serveis`):**
+  > ![Backup debian-serveis](../evidencias/t5-backup_debian-serveis.png)
+
+- **Respaldo del servidor de datos (`debian-dades`):**
+  > ![Backup debian-dades](../evidencias/t5-backup_debian-dades.png)
 
 ---
 
