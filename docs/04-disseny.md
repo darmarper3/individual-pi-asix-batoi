@@ -13,7 +13,7 @@
 
 El presente documento recoge el diseño físico y lógico de la infraestructura de pruebas del departamento de informática, adaptado al puesto de trabajo asignado (**PC-26**). 
 
-La red se estructura alrededor de un conmutador virtual central (identificado como **«PI»** en VirtualBox mediante una *Red Interna*), que conecta todos los servidores (incluyendo los nodos de servicios `debian-serveis` y de datos `debian-dades`) y clientes del sistema con el servidor de comunicaciones/firewall.
+La red se estructura alrededor de un conmutador virtual central (identificado como **«PI»** en VirtualBox mediante una *Red Interna*), que conecta todos los servidores y clientes del sistema con el servidor de comunicaciones/firewall.
 
 ### A. Política de Servidores de Comunicaciones Alternativos
 Tal y como se ha definido en las fases anteriores del proyecto, se dispone de **tres servidores de comunicaciones alternativos** (`MikroTik`, `OPNSense` y `deb-comm`):
@@ -48,8 +48,8 @@ A continuación se detalla la planificación y dimensionamiento técnico de todo
 | **Servers** | `store-srvv` | Almacenamiento / Copias | TrueNAS-SCALE-25.10.0 | 1 | 8048 MB | 20,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.5/24` (NAS / Backup) |
 | **Servers** | `win-srvv` | Control de Dominio / Identidades | Windows Server 2025 | 1 | 2048 MB | 50,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.6/24` (Directorio Activo) |
 | **Servers** | `srv-monn` | Monitorización sistemas | Lubuntu-26.04.1 | 2 | 2048 MB | 25,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.7/24` (Grafana / Zabbix) |
-| **Servers** | `debian-serveis` | Servidor de Servicios | Debian 13 Trixie (64-bit) | 1 | 2048 MB | 20,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.8/24` (Servicios Red) |
-| **Servers** | `debian-dades` | Servidor de Datos | Debian 13 Trixie (64-bit) | 1 | 2048 MB | 20,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.9/24` (Gestión Datos) |
+| **Servers** | `debian-dades` | Servidor de Datos | Debian 13 Trixie (64-bit) | 1 | 2048 MB | 20,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.8/24` (Gestión de Datos) |
+| **Servers** | `debian-serveis` | Servidor de Servicios | Debian 13 Trixie (64-bit) | 1 | 2048 MB | 20,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.9/24` (Servicios Red) |
 | **Clients** | `win-cli` | Cliente Administrativo | Windows 11 (64-bit) | 2 | 4096 MB | **D0:** 80 GB / **D1:** 10 GB | **Adap 1:** Red Interna («PI») | `192.168.26.50-250` (DHCP) |
 | **Clients** | `deb-cli` | Cliente Informática | Debian 13 Trixie (64-bit) | 1 | 2048 MB | 20,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.50-250` (DHCP) |
 
@@ -69,27 +69,27 @@ Comprobación de la salida efectiva hacia la red exterior y el router de enlace 
   
   ![Pings Nodos Proxmox](../evidencias/t4-pings-proxmox.png)
 
-- **Servidores de Infraestructura, Servicios y Datos (`win-srvv`, `store-srvv`, `srv-monn`, `debian-serveis`, `debian-dades`):**
-
-  - **TrueNAS SCALE (`store-srvv`):**
-    
-    ![Pings TrueNAS](../evidencias/t4-pings-truenas.png)
+- **Servidores de Infraestructura y Almacenamiento (`win-srvv`, `store-srvv`, `srv-monn`, `debian-dades`, `debian-serveis`):**
 
   - **Windows Server 2025 (`win-srvv`):**
     
     ![Pings Windows Server](../evidencias/t4-pings-winsrv.png)
 
+  - **TrueNAS SCALE (`store-srvv`):**
+    
+    ![Pings TrueNAS](../evidencias/t4-pings-truenas.png)
+
   - **Servidor Monitorización (`srv-monn`):**
     
     ![Pings Monitorización](../evidencias/t4-pings-srvmon.png)
 
-  - **Servidor de Servicios (`debian-serveis`):**
-    
-    ![Pings Debian Serveis](../evidencias/t4-pings-debian-serveis.png)
-
-  - **Servidor de Datos (`debian-dades`):**
+  - **Servidor de Datos (`debian-dades` - `192.168.26.8`):**
     
     ![Pings Debian Dades](../evidencias/t4-pings-debian-dades.png)
+
+  - **Servidor de Servicios (`debian-serveis` - `192.168.26.9`):**
+    
+    ![Pings Debian Serveis](../evidencias/t4-pings-debian-serveis.png)
 
 - **Clientes de Red (`win-cli` y `deb-cli`):**
   
@@ -155,7 +155,7 @@ Detalle visual del direccionamiento IP, máscara de subred y estado de cada adap
   
   ![Interfaces N3-PX](../evidencias/t4-if-n3px.png)
 
-#### 3. Servidores Empresariales, Almacenamiento, Servicios y Datos
+#### 3. Servidores Empresariales y Almacenamiento
 - **TrueNAS SCALE (`store-srvv` - `192.168.26.5/24`):**
   
   ![Interfaces TrueNAS](../evidencias/t4-if-truenas.png)
@@ -168,13 +168,13 @@ Detalle visual del direccionamiento IP, máscara de subred y estado de cada adap
   
   ![Interfaces Lubuntu Monitorización](../evidencias/t4-if-srvmon.png)
 
-- **Servidor de Servicios (`debian-serveis` - `192.168.26.8/24`):**
-  
-  ![Interfaces Debian Serveis](../evidencias/t4-ipa-debian-serveis.png)
-
-- **Servidor de Datos (`debian-dades` - `192.168.26.9/24`):**
+- **Servidor de Datos (`debian-dades` - `192.168.26.8/24`):**
   
   ![Interfaces Debian Dades](../evidencias/t4-ipa-debian-dades.png)
+
+- **Servidor de Servicios (`debian-serveis` - `192.168.26.9/24`):**
+  
+  ![Interfaces Debian Serveis](../evidencias/t4-ipa-debian-serveis.png)
 
 #### 4. Clientes de Red (Asignación DHCP `192.168.26.50-250`)
 - **Cliente Windows 11 (`win-cli` - `ipconfig /all`):**
