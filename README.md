@@ -2,7 +2,7 @@
 
 **Alumno:** Dario Martínez Pérez  
 **Curso:** 1º ASIX  
-**Centro:** CIP FP Batoi  
+**Centro:** CIPFP Batoi  
 **Módulos:** Implantación de Sistemas Operativos (ISO) / Fundamentos de Hardware (FH)  
 **PC en el Aula:** PC-26  
 **Red utilizada:** `192.168.26.0/24`  
