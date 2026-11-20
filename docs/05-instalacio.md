@@ -207,7 +207,7 @@ Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-
 - **Configuración de red, usuarios y herramientas en `debian-dades`:**
   > ![Red debian-dades](../evidencias/t5-red_debian-dades.png)
   > ![Dario debian-dades](../evidencias/t5-dario_debian-dades.png)
-  > ![Herramientas debian-dades](../evidencias/t5-herramientas_debian-dades.png)
+  > ![Herramientas debian-dades](../evidencias/t5-herramientas_debian-serveis.png)
 
 - **Verificación de red en el cliente Linux `deb-cli`:**
   > ![Dario deb-cli](../evidencias/t5-dario_deb-cli.png)
