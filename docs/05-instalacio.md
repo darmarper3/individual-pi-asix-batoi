@@ -39,12 +39,20 @@ Para cumplir con los requisitos de diseño y resiliencia del sistema, se han imp
   > ![SCP backup MikroTik](../evidencias/t5-backup_mikrotik_scp.png)
   > ![Exportar copia MikroTik](../evidencias/t5-exportar_copia_microtik.png)
 
+- **Filtrado de tráfico (Bloqueo a `1.1.1.1`) y verificación de registros (`/log print`):**
+  *(Se muestra la regla `drop` en la cadena `forward` con prefijo de registro `BLOQUEADO_1.1.1.1:`, el bloqueo efectivo del ping hacia `1.1.1.1` frente al tráfico permitido hacia `8.8.8.8` desde `deb-cli`, y las trazas capturadas en el log del router).*
+  > ![Conexiones y Bloqueo MikroTik](../evidencias/t5-mikrotik_conexiones.png)
+
 #### 2. OPNsense
 - **Configuración del usuario de administración (`dario`):**
   > ![Usuario Admin OPNsense](../evidencias/t5-dario_opnsense.png)
 
 - **Descarga del respaldo de configuración desde el panel web al cliente:**
   > ![Descarga Backup OPNsense](../evidencias/t5-baja_bak_opnsense.png)
+
+- **Filtrado de tráfico (Bloqueo a `1.1.1.1`) y supervisión en tiempo real (*Live View*):**
+  *(Se muestra en el panel Live View de OPNsense el registro en rojo de los paquetes ICMP bloqueados por la regla `Bloqueo IP 1.1.1.1` en la interfaz LAN, contrastado con la pérdida del 100% de paquetes en el terminal de `deb-cli`).*
+  > ![Conexiones y Bloqueo OPNsense](../evidencias/t5-opnsense_conexiones.png)
 
 #### 3. Servidor de Comunicaciones Debian (`deb-comm`)
 - **Creación del usuario de administración (`dario`) e inclusión en el grupo `sudo`:**
@@ -54,6 +62,10 @@ Para cumplir con los requisitos de diseño y resiliencia del sistema, se han imp
   *(Se muestra el contenido del script de copia de seguridad, su ejecución, el listado del fichero comprimido resultante, el cierre de la sesión SSH en `deb-comm` y la descarga segura mediante `scp` desde el cliente `deb-cli`).*
   > ![Script y SCP Backup deb-comm](../evidencias/t5-exportar_copia_debcomm.png)
   > ![Backup debcomm](../evidencias/t5-backup_debcomm.png)
+
+- **Filtrado con `nftables` (Bloqueo a `1.1.1.1`) y trazas del núcleo (`dmesg`):**
+  *(Se observa la monitorización del kernel mediante `dmesg` registrando el prefijo `NFT_BLOQUEO_1.1.1.1` en los paquetes reenviados desde `enp0s3` hacia `enp0s8`, junto con la confirmación del corte de conexión en el cliente `deb-cli`).*
+  > ![Conexiones y Bloqueo deb-comm](../evidencias/t5-deb-comm_conexiones.png)
 
 ---
 
