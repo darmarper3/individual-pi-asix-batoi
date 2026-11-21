@@ -17,7 +17,19 @@ Siguiendo los criterios de evaluación de los módulos de **ISO** e **FDM**, est
 
 ---
 
-## 2. Servidores de Comunicaciones
+## 2. Comprobación de Origen e Integridad de las ISOs
+
+Para garantizar que los medios de instalación empleados en el despliegue del entorno no han sido alterados y coinciden de manera íntegra con las fuentes oficiales de los fabricantes, se ha llevado a cabo una validación automatizada mediante huellas criptográficas `sha256sum`. 
+
+Se han contrastado las sumas locales almacenadas en el fichero `hash.txt` frente a las referencias oficiales registradas en `hash_oficial.txt`, utilizando la utilidad de comparación `diff` para certificar la coincidencia exacta de los ficheros operativos.
+
+### A. Evidencia de Validación de Hashes
+- **Comprobación mediante `diff` y volcado de los ficheros locales y oficiales:**
+  > ![Comprobación Hashes ISOs](../evidencias/t5-comprobacion_isos.png)
+
+---
+
+## 3. Servidores de Comunicaciones
 
 Para cumplir con los requisitos de diseño y resiliencia del sistema, se han implementado y probado sucesivamente **tres alternativas de servidores de comunicaciones y cortafuegos** (`MikroTik`, `OPNsense` y `deb-comm`). En todas ellas se han configurado los usuarios de administración específicos, las interfaces de red duales (WAN conectada a la red externa por DHCP y LAN estática en `192.168.26.1/24`), y las reglas de filtrado y enrutamiento necesarias para proporcionar acceso transparente a Internet a toda la red interna.
 
@@ -69,7 +81,7 @@ Para cumplir con los requisitos de diseño y resiliencia del sistema, se han imp
 
 ---
 
-## 3. Servidor de Almacenamiento y NAS (`store-srvv`)
+## 4. Servidor de Almacenamiento y NAS (`store-srvv`)
 
 Como pilar fundamental para la retención de datos y la política de resiliencia de la organización, se ha implementado el servidor de almacenamiento basado en **TrueNAS SCALE (`store-srvv`)**. 
 
@@ -100,7 +112,7 @@ Se han configurado los parámetros de red estáticos, los accesos mediante usuar
 
 ---
 
-## 4. Clúster de Virtualización (`Proxmox VE - PX`)
+## 5. Clúster de Virtualización (`Proxmox VE - PX`)
 
 Se ha desplegado un clúster de virtualización de alta disponibilidad compuesto por **tres nodos** (`N1-PX`, `N2-PX`, `N3-PX`), interconectados en la red interna de la organización y vinculados al almacenamiento centralizado en TrueNAS. 
 
@@ -168,7 +180,7 @@ Se han realizado pruebas de migración de una máquina virtual y un contenedor e
 
 ---
 
-## 5. Centralización de Dominio (`win-srvv` y `win-cli`)
+## 6. Centralización de Dominio (`win-srvv` y `win-cli`)
 
 Para estructurar la gestión administrativa centralizada de identidades, directivas y equipos dentro del departamento, se ha desplegado el servidor de directorio activo sobre **Windows Server 2025 (`win-srvv`)**, integrando de forma operativa el cliente administrativo **Windows 11 (`win-cli`)**.
 
@@ -201,7 +213,7 @@ Para estructurar la gestión administrativa centralizada de identidades, directi
 
 ---
 
-## 6. Servidores de Infraestructura, Servicios y Monitorización (`srv-monn`, `deb-cli`, `debian-serveis` y `debian-dades`)
+## 7. Servidores de Infraestructura, Servicios y Monitorización (`srv-monn`, `deb-cli`, `debian-serveis` y `debian-dades`)
 
 Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-monn`), los servidores dedicados a servicios (`debian-serveis`) y gestión de datos (`debian-dades`) dotados de herramientas de supervisión y administración activa, junto con el despliegue del entorno cliente de pruebas y validación operativo (`deb-cli`).
 
@@ -227,7 +239,7 @@ Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-
 
 ---
 
-## 7. Sistema de Copias de Seguridad y Respaldo (Backups)
+## 8. Sistema de Copias de Seguridad y Respaldo (Backups)
 
 Con el propósito de mitigar fallos imprevistos y garantizar la recuperación ante desastres (*Disaster Recovery*), se han generado, verificado y volcado de forma sistemática los respaldos de configuración y snapshots de todos los elementos críticos del sistema hacia el servidor centralizado de almacenamiento (`store-srvv` / TrueNAS):
 
@@ -257,7 +269,7 @@ Con el propósito de mitigar fallos imprevistos y garantizar la recuperación an
 
 ---
 
-## 8. Ampliación (Apte+) - Automatización de Respaldos Centralizados en TrueNAS (`192.168.26.5`)
+## 9. Ampliación (Apte+) - Automatización de Respaldos Centralizados en TrueNAS (`192.168.26.5`)
 
 Como ampliación técnica avanzada, se ha implementado la automatización total de los respaldos de configuración para todas las máquinas de la red (Linux Debian CLI, Linux Debian Com, MikroTik, OPNsense, Windows Server y Windows Client), volcando los ficheros con el formato normalizado `backup_systemname_YYYYMMDD_HHMMSS.extension` directamente en el repositorio centralizado del servidor TrueNAS (`\\192.168.26.5\backups`).
 
