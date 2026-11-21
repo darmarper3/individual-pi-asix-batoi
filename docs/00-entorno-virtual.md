@@ -56,6 +56,8 @@ A continuación se detallan las características técnicas de las máquinas virt
 | **win-srvv** | Windows Server 2025 (64-bit) | 1 | 2048 MB | 50,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.6/24` (Dominio/Identidades) |
 | **store-srvv** | TrueNAS-SCALE-25.10.0 | 1 | 8048 MB | 20,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.5/24` (Servidor Almacenamiento/NAS) |
 | **srv-monn** | Lubuntu-26.04.1 | 2 | 2048 MB | 25,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.7/24` (Servidor de Monitorización) |
+| **debian-dades** | Debian 13 Trixie (64-bit) | 1 | 2048 MB | 20,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.8/24` (Servidor de Datos) |
+| **debian-serveis** | Debian 13 Trixie (64-bit) | 1 | 2048 MB | 20,00 GB (SATA) | **Adap 1:** Red Interna («PI») | `192.168.26.9/24` (Servidor de Servicios) |
 
 ### D. Clientes de Red (`PI (Individual)/Cli`)
 
