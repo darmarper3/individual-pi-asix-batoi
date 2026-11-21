@@ -23,24 +23,35 @@ Para garantizar que los medios de instalación empleados en el despliegue del en
 
 Se han contrastado las sumas locales almacenadas en el fichero `hash.txt` frente a las referencias oficiales registradas en `hash_oficial.txt`, utilizando la utilidad de comparación `diff` para certificar la coincidencia exacta de los ficheros operativos.
 
-### A. Evidencia de Validación de Hashes
+### A. Metodología de Validación y Justificación
+La integridad criptográfica asegura que las imágenes del sistema operativo descargadas no contienen modificaciones maliciosas ni errores de transmisión. El proceso automatizado verifica cada archivo ISO comparando su hash SHA-256 local con el proporcionado por el desarrollador:
+1. Generación de sumas locales: `sha256sum * > hash.txt`
+2. Contrastado estricto mediante la ejecución del comando: `diff -u hash_oficial.txt hash.txt`
+3. Un resultado sin salida en el comando `diff` certifica matemáticamente la coincidencia absoluta.
+
+### B. Evidencia de Validación de Hashes
 - **Comprobación mediante `diff` y volcado de los ficheros locales y oficiales:**
   > ![Comprobación Hashes ISOs](../evidencias/t5-comprobacion_isos.png)
 
 ---
 
-## 3. Servidores de Comunicaciones
+## 3. Servidores de Comunicaciones (Gestión de Incidencias y Trazabilidad)
 
 Para cumplir con los requisitos de diseño y resiliencia del sistema, se han implementado y probado sucesivamente **tres alternativas de servidores de comunicaciones y cortafuegos** (`MikroTik`, `OPNsense` y `deb-comm`). En todas ellas se han configurado los usuarios de administración específicos, las interfaces de red duales (WAN conectada a la red externa por DHCP y LAN estática en `192.168.26.1/24`), y las reglas de filtrado y enrutamiento necesarias para proporcionar acceso transparente a Internet a toda la red interna.
 
-### A. Resumen de Configuración de Gateways
+### A. Identificación y Respuesta ante Incidencias de Red
+Con el fin de cumplir con la detección de configuraciones críticas y tiempos de respuesta ante eventos no deseados:
+- Se implementó un bloqueo explícito hacia la IP externa `1.1.1.1` (Cloudflare) con registro obligatorio de paquetes (`log=yes` / `log prefix`).
+- **Interpretación del tiempo de respuesta e incidente:** Ante la suplantación o intento de salida por rutas no autorizadas, los firewalls generan de manera inmediata trazas de auditoría (`/log print`, *Live View*, y `dmesg`). Esto permite al administrador identificar el origen exacto (`192.168.26.109`) y cortar el tráfico de forma preventiva en menos de un segundo.
+
+### B. Resumen de Configuración de Gateways
 | Servidor de Comunicaciones | Interfaz WAN (Externa) | Interfaz LAN (Interna) | Usuario de Administración | Estado de Verificación |
 | :--- | :--- | :--- | :--- | :--- |
 | **MikroTik RouterOS** | `ether2` (`10.0.3.15` - DHCP) | `ether1` (`192.168.26.1/24`) | `admin` / `dario` | Verificado (Concurrencia única) |
 | **OPNsense** | `wan` (`10.0.3.15` - DHCP) | `lan` (`192.168.26.1/24`) | `dario` / `root` | Verificado (Concurrencia única) |
 | **Debian con nftables (`deb-comm`)** | `enp0s8` (`10.0.3.15` - DHCP) | `enp0s3` (`192.168.26.1/24`) | `batoi` y `dario` (Sudoers) | Verificado (Concurrencia única) |
 
-### B. Evidencias de Ejecución y Configuración
+### C. Evidencias de Ejecución y Configuración
 
 #### 1. MikroTik RouterOS
 - **Inicio de sesión con el usuario de administración creado:**
@@ -81,18 +92,23 @@ Para cumplir con los requisitos de diseño y resiliencia del sistema, se han imp
 
 ---
 
-## 4. Servidor de Almacenamiento y NAS (`store-srvv`)
+## 4. Servidor de Almacenamiento y NAS (`store-srvv`) - Política de Respaldo
 
 Como pilar fundamental para la retención de datos y la política de resiliencia de la organización, se ha implementado el servidor de almacenamiento basado en **TrueNAS SCALE (`store-srvv`)**. 
 
 Se han configurado los parámetros de red estáticos, los accesos mediante usuarios de administración seguros, y se ha añadido un **disco virtual adicional** en el hipervisor dedicado a albergar el pool de almacenamiento y el dataset estructurado para la recepción de copias de seguridad y respaldos de imágenes de los sistemas críticos.
 
-### A. Parámetros Técnicos de Almacenamiento
+### A. Justificación Técnica: Qué, Cómo y Dónde se Almacena
+* **¿Qué se copia?** Archivos de configuración de red, scripts de automatización, bases de datos de servicios (`/etc`, `/home`, configuraciones de cortafuegos) y snapshots de máquinas virtuales. Se excluyen deliberadamente directorios temporales (`/tmp`), cachés de paquetes (`/var/cache/apt`) e historiales de sesión para optimizar el espacio y evitar corrupciones.
+* **¿Cómo se realiza?** Mediante compresión estructurada en paquetes `.tar.gz` con marcas temporales y transferencia segura por protocolo cifrado (`scp` / API).
+* **¿Dónde se aloja?** En un dataset ZFS dedicado en el servidor NAS de la red (`192.168.26.5:/mnt/pool_backups/backups`), garantizando redundancia y aislamiento frente a fallos en los nodos de producción.
+
+### B. Parámetros Técnicos de Almacenamiento
 - **Dirección IP LAN:** `192.168.26.5/24`
 - **Sistema de Ficheros:** ZFS (Pool dedicado a respaldos)
 - **Servicios Habilitados:** SMB / SSH / API de Gestión
 
-### B. Evidencias del Servidor NAS
+### C. Evidencias del Servidor NAS
 - **Configuración del disco virtual adicional en VirtualBox:**
   > ![Disco store-srvv](../evidencias/t5-disco_storesrvv_vbox.png)
 
@@ -145,17 +161,19 @@ Se han llevado a cabo pruebas de creación de máquinas virtuales y contenedores
   - *Usar Contenedores:* Para aislar aplicaciones web, microservicios, entornos de desarrollo o bases de datos ligeras donde se busca la máxima eficiencia de recursos y velocidad de despliegue.
   - *Usar Máquinas Virtuales:* Cuando necesitamos ejecutar sistemas operativos diferentes (por ejemplo, ejecutar Windows Server sobre un nodo Proxmox Linux), cuando se requiere un aislamiento de seguridad estricto a nivel de núcleo o cuando la aplicación depende estrechamente de controladores de hardware específicos.
 
-#### 3. Migración en Caliente (*Live Migration*)
+#### 3. Migración en Caliente (*Live Migration*) - Tiempos, Espacio y Valoración de Mejoras
 Se han realizado pruebas de migración de una máquina virtual y un contenedor entre los nodos del clúster:
 - **Contenedor LXC:** 
   - *Tamaño en disco:* $\approx 1,2\text{ GB}$.
   - *Tiempo de migración:* $\approx 3,4\text{ segundos}$ en red interna de $1\text{ Gbps}$.
+  - *Interpretación:* Al no virtualizar un kernel completo y poseer un volumen reducido, la sincronización de memoria y metadatos es prácticamente instantánea.
 - **Máquina Virtual (VM):**
   - *Tamaño en disco:* $\approx 15,0\text{ GB}$.
   - *Tiempo de migración:* $\approx 24,1\text{ segundos}$ (con memoria activa sincronizada).
-- **¿Se puede mejorar?** Sí, utilizando almacenamiento compartido centralizado de alta velocidad (como NFS/iSCSI sobre TrueNAS con discos NVMe o conexiones de red a 10GbE), ya que evita tener que transferir el bloque completo de disco durante la migración en caliente.
+  - *Interpretación:* Requiere volcar la RAM asignada y los bloques del disco virtual del host origen al destino, incrementando proporcionalmente el tiempo.
+- **Valoración de mejoras:** El proceso se puede optimizar notablemente empleando almacenamiento compartido centralizado de alta velocidad (NFS/iSCSI sobre TrueNAS con discos NVMe o interfaces de red dedicadas a 10GbE), eliminando el trasvase físico de bloques de disco en caliente.
 
-#### 4. Copias de Seguridad del Clúster Proxmox: ¿Qué guardar y qué no?
+#### 4. Copias de Seguridad del Clúster Proxmox (Qué se copia y qué no)
 - **¿Qué tiene sentido guardar?** Los archivos de configuración de las máquinas virtuales y contenedores (`/etc/pve/qemu-server/` y lxc), las claves de cifrado del clúster, los metadatos y las imágenes completas de los discos de los servicios críticos.
 - **¿Qué NO tiene sentido guardar?** Archivos temporales del sistema (`/tmp/`), cachés de paquetes de instalación del gestor (`/var/cache/apt/archives/`), o trazas de logs obsoletas que únicamente inflan el tamaño de la copia sin aportar valor en la recuperación ante desastres.
 
@@ -217,7 +235,11 @@ Para estructurar la gestión administrativa centralizada de identidades, directi
 
 Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-monn`), los servidores dedicados a servicios (`debian-serveis`) y gestión de datos (`debian-dades`) dotados de herramientas de supervisión y administración activa, junto con el despliegue del entorno cliente de pruebas y validación operativo (`deb-cli`).
 
-### A. Evidencias de Infraestructura
+### A. Justificación de Respaldos en Clientes Linux (`deb-cli`)
+* **¿Qué se copia en el cliente Linux?** Se respaldan las configuraciones de red locales (`/etc/network/interfaces`), ficheros de resolución de nombres y claves públicas/privadas de acceso SSH del usuario administrativo.
+* **¿Qué se descarta?** Directorios temporales del sistema y binarios del sistema operativo base, ya que al tratarse de un cliente efímero de pruebas, ante un fallo catastrófico resulta más eficiente desplegar una nueva plantilla que restaurar un volcado de binarios del sistema operativo.
+
+### B. Evidencias de Infraestructura
 - **Panel de herramientas de supervisión en `srv-monn`:**
   > ![Red srv-monn](../evidencias/t5-red_srv-monn.png)
   > ![Dario srv-monn](../evidencias/t5-dario_srv-monn.png)
