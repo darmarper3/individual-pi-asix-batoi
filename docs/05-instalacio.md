@@ -249,7 +249,7 @@ Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-
   * *Qué se descarta:* Sistemas de archivos virtuales (`/proc`, `/sys`, `/dev`) y logs históricos rotados.
 
 ### B. Evidencias de Infraestructura
-- **Panel de herramientas de supervisión en `srv-monn`:**
+- **Configuración de red, usuarios y herramientas en `srv-monn`:**
   > ![Red srv-monn](../evidencias/t5-red_srv-monn.png)
   > ![Dario srv-monn](../evidencias/t5-dario_srv-monn.png)
   > ![Herramientas Monitorización](../evidencias/t5-herramientas_srv-monn.png)
