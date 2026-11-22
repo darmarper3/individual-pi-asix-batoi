@@ -359,21 +359,21 @@ Para validar de forma práctica la eficacia del plan de continuidad y verificar 
 
 ## 9. Ampliación (Apte+) - Automatización de Respaldos Centralizados en TrueNAS (`192.168.26.5`)
 
-Como ampliación técnica avanzada, se ha implementado la automatización total de los respaldos de configuración para todas las máquinas de la red (Linux Debian CLI, Linux Debian Com, MikroTik, OPNsense, Windows Server y Windows Client), volcando los ficheros con el formato normalizado `backup_systemname_YYYYMMDD_HHMMSS.extension` directamente en el repositorio centralizado del servidor TrueNAS (`\\192.168.26.5\backups`).
+Como ampliación técnica avanzada, se ha implementado la automatización total de los respaldos de configuración para todas las máquinas de la red (deb-cli, deb-comm, MikroTik, OPNsense, win-srvv y win-cli), volcando los ficheros con el formato normalizado `backup_systemname_YYYYMMDD_HHMMSS.extension` directamente en el repositorio centralizado del servidor TrueNAS (`\\192.168.26.5\backups`).
 
 ### A. Automatización en la máquina Debian CLI (`deb-cli`)
 Se ha configurado un script de compresión y volcado automático ejecutado de forma desatendida mediante el planificador nativo del sistema.
-* **Script de Automatización en Debian CLI:**
+* **Script de Automatización en deb-cli:**
   > ![Script Debian CLI](../evidencias/t5-apte_deb-cli_script.png)
-* **Planificador Cron en Debian CLI:**
+* **Planificador Cron en deb-cli:**
   > ![Cron Debian CLI](../evidencias/t5-apte_deb-cli_cron.png)
 
-### B. Automatización en la máquina Debian Com (`deb-comm`)
+### B. Automatización en la máquina deb-comm (`deb-comm`)
 Se ha implementado el script de respaldo para empaquetar y transferir las reglas de red y configuraciones del cortafuegos Debian.
-* **Script de Automatización en Debian Com:**
-  > ![Script Debian Com](../evidencias/t5-apte_deb-com_script.png)
-* **Planificador Cron en Debian Com:**
-  > ![Cron Debian Com](../evidencias/t5-apte_deb-comm_cron.png)
+* **Script de Automatización en deb-comm:**
+  > ![Script deb-comm](../evidencias/t5-apte_deb-com_script.png)
+* **Planificador Cron en deb-comm:**
+  > ![Cron deb-comm](../evidencias/t5-apte_deb-comm_cron.png)
 
 ### C. Automatización en el dispositivo MikroTik
 Se configuró un script interno que genera el backup del sistema y lo transmite de forma programada al NAS.
