@@ -13,7 +13,7 @@
 
 El presente documento recoge la implantación práctica, configuración y verificación de los sistemas operativos y servicios esenciales que componen el entorno de pruebas individualizado del departamento de informática, adaptado al puesto de trabajo **PC-26**.
 
-Siguiendo los criterios de evaluación de los módulos de **ISO** e **FDM**, esta fase abarca el despliegue de los servidores de comunicaciones, almacenamiento NAS, clúster de virtualización de alta disponibilidad, centralización de dominios y servicios de infraestructura, garantizando el aislamiento de la red interna, el enrutamiento efectivo hacia el exterior y la consolidación de un sistema de copias de seguridad centralizado. Asimismo, se incorporan las respuestas a las cuestiones teóricas, análisis de riesgos y tiempos de respuesta ante incidencias requeridos en la rúbrica oficial.
+Siguiendo los criterios de evaluación de los módulos de **ISO** e **FDM**, esta fase abarca el despliegue de los servidores de comunicaciones, almacenamiento NAS, clúster de virtualización de alta disponibilidad, centralización de dominios y servicios de infraestructura, garantizando el aislamiento de la red interna, el enrutamiento efectivo hacia el exterior y la consolidación de un sistema de copias de seguridad centralizado. Asimismo, se incorporan las respuestas a las cuestiones teóricas, análisis de riesgos, tiempos de respuesta ante incidencias y pruebas prácticas de recuperación ante fallos controlados requeridos en la rúbrica oficial.
 
 ---
 
@@ -167,7 +167,7 @@ Se han llevado a cabo pruebas de creación de máquinas virtuales y contenedores
   - *Usar Máquinas Virtuales:* Cuando necesitamos ejecutar sistemas operativos diferentes (por ejemplo, ejecutar Windows Server sobre un nodo Proxmox Linux), cuando se requiere un aislamiento de seguridad estricto a nivel de núcleo o cuando la aplicación depende estrechamente de controladores de hardware específicos.
 
 #### 3. Migración en Caliente (*Live Migration*) - Tiempos, Espacio y Valoración de Mejoras
-Se han realizado pruebas de migración de una máquina virtual y un contenedor entre los nodos del clúster:
+Se han realizado pruebas de migración de una máquina virtual y un contenedor entre los nodos del clúster, extrayendo los registros directamente del historial de tareas (*Task History*) de Proxmox:
 - **Contenedor LXC:** 
   - *Tamaño en disco:* $\approx 1,2\text{ GB}$.
   - *Tiempo de migración:* $\approx 3,4\text{ segundos}$ en red interna de $1\text{ Gbps}$.
@@ -179,7 +179,7 @@ Se han realizado pruebas de migración de una máquina virtual y un contenedor e
 - **Valoración de mejoras:** El proceso se puede optimizar notablemente empleando almacenamiento compartido centralizado de alta velocidad (NFS/iSCSI sobre TrueNAS con discos NVMe o interfaces de red dedicadas a 10GbE), eliminando el trasvase físico de bloques de disco en caliente.
 
 #### 4. Copias de Seguridad del Clúster Proxmox (Qué se copia y qué no)
-- **¿Qué tiene sentido guardar?** Los archivos de configuración de las máquinas virtuales y contenedores (`/etc/pve/qemu-server/` y `/etc/pve/lxc/`), las claves de cifrado del clúster (`corosync.conf`), los metadatos y las imágenes completas de los discos de los servicios críticos.
+- **¿Qué tiene sentido guardar?** Mediante el sistema integrado `VZDump` hacia el almacenamiento centralizado TrueNAS, se guardan los archivos de configuración de las máquinas virtuales y contenedores (`/etc/pve/qemu-server/` y `/etc/pve/lxc/`), las claves de cifrado del clúster (`corosync.conf`), los metadatos y las imágenes completas de los discos de los servicios críticos.
 - **¿Qué NO tiene sentido guardar?** Archivos temporales del sistema (`/tmp/`), cachés de paquetes de instalación del gestor (`/var/cache/apt/archives/`), o trazas de logs obsoletas que únicamente inflan el tamaño de la copia sin aportar valor en la recuperación ante desastres.
 
 ### C. Evidencias del Clúster Proxmox
@@ -242,8 +242,8 @@ Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-
 
 ### A. Justificación de Respaldos en Clientes Linux (`deb-cli`) y Servidores de Servicios
 * **Cliente GNU/Linux (`deb-cli`):**
-  * *Qué se copia y por qué:* Se respaldan selectivamente los ficheros de configuración de red local (`/etc/network/interfaces`, `/etc/hosts`), las claves SSH de administración y el directorio de usuario (`/home/batoi` / `/home/dario`) para garantizar la continuidad inmediata del puesto de trabajo **PC-26** ante un fallo físico de almacenamiento.
-  * *Qué se descarta y por qué:* Se excluyen los directorios de binarios del sistema (`/usr`, `/bin`, `/lib`), cachés de paquetes (`/var/cache/apt`) y archivos temporales (`/tmp`). Al tratarse de un terminal cliente estandarizado, resulta mucho más ágil y limpio desplegar de nuevo el sistema base desde la ISO verificada y volcar únicamente la configuración personal del usuario que restaurar gigabytes de binarios del sistema operativo.
+  * *Qué se copia y por qué:* Dado que los equipos cliente son terminales efímeros o de usuario final, se evita realizar volcados completos del sistema operativo y se respaldan selectivamente los ficheros de configuración de red local (`/etc/network/interfaces`, `/etc/hosts`), las claves SSH de administración y el directorio de usuario (`/home/batoi` / `/home/dario`) para garantizar la continuidad inmediata del puesto de trabajo **PC-26** ante un fallo físico de almacenamiento.
+  * *Qué se descarta y por qué:* Se excluyen los directorios de binarios del sistema (`/usr`, `/bin`, `/lib`), cachés de paquetes (`/var/cache/apt`) y archivos temporales (`/tmp`), ya que resulta mucho más ágil y limpio desplegar de nuevo el sistema base desde la ISO verificada y volcar únicamente la configuración personal del usuario.
 * **Servidores de Servicios y Datos (`debian-serveis`, `debian-dades`, `srv-monn`):**
   * *Qué se copia:* El directorio `/etc` completo (configuración de demonios, servicios web/datos y tareas programadas) y los volúmenes de datos de aplicación.
   * *Qué se descarta:* Sistemas de archivos virtuales (`/proc`, `/sys`, `/dev`) y logs históricos rotados.
@@ -270,10 +270,11 @@ Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-
 
 ---
 
-## 8. Sistema de Copias de Seguridad y Respaldo (Backups)
+## 8. Sistema de Copias de Seguridad, Respaldo y Recuperación ante Fallos (*Disaster Recovery*)
 
-Con el propósito de mitigar fallos imprevistos y garantizar la recuperación ante desastres (*Disaster Recovery*), se han generado, verificado y volcado de forma sistemática los respaldos de configuración y snapshots de todos los elementos críticos del sistema hacia el servidor centralizado de almacenamiento (`store-srvv` / TrueNAS):
+Con el propósito de mitigar fallos imprevistos y garantizar la recuperación ante desastres (*Disaster Recovery*), se han generado, verificado y volcado de forma sistemática los respaldos de configuración y snapshots de todos los elementos críticos del sistema hacia el servidor centralizado de almacenamiento (`store-srvv` / TrueNAS).
 
+### A. Respaldos Generados por Sistema
 - **Respaldo del cliente Linux (`deb-cli`):**
   > ![Backup deb-cli](../evidencias/t5-backup_deb-cli.png)
 
@@ -297,6 +298,62 @@ Con el propósito de mitigar fallos imprevistos y garantizar la recuperación an
 
 - **Respaldo del servidor de datos (`debian-dades`):**
   > ![Backup debian-dades](../evidencias/t5-backup_debian-dades.png)
+
+---
+
+### B. Simulación de Fallos Controlados y Protocolos de Recuperación (*Recovery Playbooks*)
+
+Para validar de forma práctica la eficacia del plan de continuidad y verificar que los respaldos alojados en TrueNAS (`192.168.26.5`) permiten revertir incidentes críticos en los servidores de comunicaciones, se han ejecutado simulaciones de fallos selectivos de seguridad (eliminando o deshabilitando el bloqueo hacia la IP externa `1.1.1.1` sin interrumpir el enrutamiento NAT) seguidas de la restauración íntegra desde el repositorio centralizado.
+
+#### 1. Recuperación en OPNsense (`192.168.26.1`)
+- **Simulación de la incidencia:** Desde la interfaz web de OPNsense (**Firewall > Rules > LAN**), se deshabilita manualmente la regla `Bloqueo IP 1.1.1.1` y se aplican los cambios. Al lanzar `ping 1.1.1.1` desde el cliente `deb-cli`, el tráfico deja de bloquearse (`0% packet loss`), evidenciando la brecha de seguridad simulada.
+  > ![Fallo Simulado OPNsense](../evidencias/t5-opnsense_fallo_simulado.png)
+
+- **Procedimiento de restauración desde TrueNAS:**
+  1. Se descarga el fichero de respaldo XML desde el repositorio centralizado mediante `scp` utilizando el usuario `dario`:
+     ```bash
+     scp dario@192.168.26.5:/mnt/pool_backups/backups/backup_opnsense_20261122_175252.xml ./
+     ```
+  2. En el panel web de OPNsense (**System > Configuration > Backups**), se selecciona el archivo descargado en el selector de archivos y se carga en el formulario **Restore** (tras superar una validación previa de adjunto, el fichero queda listo para ejecutar **Restore configuration**).
+     > ![Selección Backup OPNsense](../evidencias/t5-opnsense_scp_seleccion_backup.png)
+     > ![Cargar Backup OPNsense](../evidencias/t5-opnsense_cargar_backup.png)
+
+- **Verificación de la recuperación:** Tras aplicar la restauración y recargar los servicios automáticamente, la regla `Bloqueo IP 1.1.1.1` vuelve a figurar activa en **Firewall > Rules > LAN**, y el cliente `deb-cli` vuelve a registrar `100% packet loss` hacia `1.1.1.1`.
+  > ![Recuperación OPNsense](../evidencias/t5-opnsense_recuperacion.png)
+
+#### 2. Recuperación en Debian con `nftables` (`deb-comm`)
+- **Simulación de la incidencia:** Mediante `sudo nft -a list ruleset` se identifica el identificador (`handle 2`) de la regla de bloqueo en la cadena `forward` de la tabla `ip filter`, y se elimina selectivamente (`sudo nft delete rule ip filter forward handle 2`) manteniendo intacta la tabla `ip nat` (`masquerade`). Como resultado, el cliente `deb-cli` vuelve a alcanzar `1.1.1.1`.
+  > ![Fallo Simulado deb-comm](../evidencias/t5-deb-comm_fallo_simulado.png)
+
+- **Procedimiento de restauración desde TrueNAS:**
+  1. Transferencia segura del empaquetado `.tar.gz` desde TrueNAS al directorio temporal de `deb-comm`:
+     ```bash
+     scp dario@192.168.26.5:/mnt/pool_backups/backups/backup_deb-comm_20261122_180248.tar.gz /tmp/
+     ```
+  2. Extracción sobre la raíz del sistema y recarga del servicio `nftables`:
+     ```bash
+     sudo tar -xzf /tmp/backup_deb-comm_20261122_180248.tar.gz -C /
+     sudo nft -f /etc/nftables.conf
+     ```
+- **Verificación de la recuperación:** Se constata que el filtrado hacia `1.1.1.1` vuelve a estar operativo (`100% packet loss` en `deb-cli`) mientras la conectividad general hacia `8.8.8.8` permanece activa.
+  > ![Recuperación deb-comm](../evidencias/t5-deb-comm_recuperacion.png)
+
+#### 3. Recuperación en MikroTik RouterOS
+- **Simulación de la incidencia:** Desde la consola de MikroTik se eliminan las reglas de filtrado del cortafuegos (`/ip firewall filter remove [find]`), dejando la tabla de filtrado vacía mientras el NAT (`/ip firewall nat`) continúa operando.
+  > ![Fallo Simulado MikroTik](../evidencias/t5-mikrotik_fallo_simulado.png)
+
+- **Procedimiento de restauración desde TrueNAS:**
+  1. Descarga del respaldo binario desde TrueNAS al cliente intermedio `deb-cli` y transferencia al almacenamiento interno del router mediante `scp` con el usuario `dario`:
+     ```bash
+     scp dario@192.168.26.5:/mnt/pool_backups/backups/backup_mikrotik_20261122_162749.backup ./
+     scp backup_mikrotik_20261122_162749.backup dario@192.168.26.1:/
+     ```
+  2. Carga de la configuración binaria desde la consola de MikroTik y reinicio automático:
+     ```text
+     /system backup load name=backup_mikrotik_20261122_162749.backup
+     ```
+- **Verificación de la recuperación:** Tras el reinicio del dispositivo, `/ip firewall filter print` confirma la restauración íntegra de las reglas de bloqueo hacia `1.1.1.1`.
+  > ![Recuperación MikroTik](../evidencias/t5-mikrotik_recuperacion.png)
 
 ---
 
@@ -370,4 +427,4 @@ El despliegue integral de la infraestructura correspondiente a la **Tasca 5** en
 
 1. **Gestión de Concurrencia Única en Gateways:** Al desplegar tres cortafuegos distintos (`MikroTik`, `OPNsense` y `deb-comm`) configurados con la misma puerta de enlace interna (`192.168.26.1/24`), fue indispensable gestionar estrictamente su encendido exclusivo para evitar conflictos de direcciones IP y tablas ARP corruptas en la red LAN.
 2. **Estabilidad de Quórum en Clúster Proxmox:** La sincronización de los tres nodos (`N1-PX`, `N2-PX`, `N3-PX`) exigió verificar la baja latencia en la red interna `192.168.26.0/24` para mantener el quórum activo de Corosync y garantizar la eficacia de las migraciones en caliente entre contenedores LXC y máquinas virtuales.
-3. **Interoperabilidad en la Automatización de Respaldos:** Unificar las copias de seguridad de sistemas operativos heterogéneos (GNU/Linux, FreeBSD, RouterOS y Windows) hacia un único repositorio ZFS en TrueNAS requirió adaptar los protocolos de transferencia (`scp` con autenticación por clave/usuario y `SMB` mediante scripts PowerShell), estandarizando la nomenclatura para facilitar una auditoría y recuperación inmediata ante cualquier incidencia.
+3. **Interoperabilidad en la Automatización y Recuperación de Respaldos:** Unificar las copias de seguridad de sistemas operativos heterogéneos (GNU/Linux, FreeBSD, RouterOS y Windows) hacia un único repositorio ZFS en TrueNAS requirió adaptar los protocolos de transferencia (`scp` con autenticación por clave/usuario `dario` y `SMB` mediante scripts PowerShell), estandarizando la nomenclatura para facilitar una auditoría y recuperación inmediata ante cualquier incidencia controlada o real.
