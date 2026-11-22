@@ -90,7 +90,6 @@ Con el objetivo de identificar posibles problemas en los sistemas, detectar conf
 - **Generación de respaldo mediante script (`.tar.gz`) y transferencia por `scp` a `deb-cli`:**
   *(Se muestra el contenido del script de copia de seguridad, su ejecución, el listado del fichero comprimido resultante, el cierre de la sesión SSH en `deb-comm` y la descarga segura mediante `scp` desde el cliente `deb-cli`).*
   > ![Script y SCP Backup deb-comm](../evidencias/t5-exportar_copia_debcomm.png)
-  > ![Backup debcomm](../evidencias/t5-backup_debcomm.png)
 
 - **Filtrado con `nftables` (Bloqueo a `1.1.1.1`) y trazas del núcleo (`dmesg`):**
   > ![Conexiones y Bloqueo deb-comm](../evidencias/t5-deb-comm_conexiones.png)
