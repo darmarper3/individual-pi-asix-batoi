@@ -13,7 +13,7 @@
 
 El presente documento recoge la implantación práctica, configuración y verificación de los sistemas operativos y servicios esenciales que componen el entorno de pruebas individualizado del departamento de informática, adaptado al puesto de trabajo **PC-26**.
 
-Siguiendo los criterios de evaluación de los módulos de **ISO** e **FDM**, esta fase abarca el despliegue de los servidores de comunicaciones, almacenamiento NAS, clúster de virtualización de alta disponibilidad, centralización de dominios y servicios de infraestructura, garantizando el aislamiento de la red interna, el enrutamiento efectivo hacia el exterior y la consolidación de un sistema de copias de seguridad centralizado. Asimismo, se incorporan las respuestas a las cuestiones teóricas e investigación requeridas en el enunciado oficial de la tarea.
+Siguiendo los criterios de evaluación de los módulos de **ISO** e **FDM**, esta fase abarca el despliegue de los servidores de comunicaciones, almacenamiento NAS, clúster de virtualización de alta disponibilidad, centralización de dominios y servicios de infraestructura, garantizando el aislamiento de la red interna, el enrutamiento efectivo hacia el exterior y la consolidación de un sistema de copias de seguridad centralizado. Asimismo, se incorporan las respuestas a las cuestiones teóricas, análisis de riesgos y tiempos de respuesta ante incidencias requeridos en la rúbrica oficial.
 
 ---
 
@@ -23,11 +23,11 @@ Para garantizar que los medios de instalación empleados en el despliegue del en
 
 Se han contrastado las sumas locales almacenadas en el fichero `hash.txt` frente a las referencias oficiales registradas en `hash_oficial.txt`, utilizando la utilidad de comparación `diff` para certificar la coincidencia exacta de los ficheros operativos.
 
-### A. Metodología de Validación y Justificación
-La integridad criptográfica asegura que las imágenes del sistema operativo descargadas no contienen modificaciones maliciosas ni errores de transmisión. El proceso automatizado verifica cada archivo ISO comparando su hash SHA-256 local con el proporcionado por el desarrollador:
-1. Generación de sumas locales: `sha256sum * > hash.txt`
-2. Contrastado estricto mediante la ejecución del comando: `diff -u hash_oficial.txt hash.txt`
-3. Un resultado sin salida en el comando `diff` certifica matemáticamente la coincidencia absoluta.
+### A. Metodología de Validación e Interpretación de Resultados
+La integridad criptográfica asegura que las imágenes del sistema operativo descargadas no contienen modificaciones maliciosas (*tampering*) ni errores de transmisión durante la descarga. El proceso automatizado verifica cada archivo ISO comparando su hash SHA-256 local con el proporcionado por el desarrollador:
+1. **Generación de sumas locales:** `sha256sum *.iso > hash.txt`
+2. **Contrastado estricto:** `diff -u hash_oficial.txt hash.txt`
+3. **Interpretación técnica:** El comando `diff` devuelve una salida completamente vacía (código de salida `0`), lo que certifica matemáticamente que no existe ni un solo bit de discrepancia entre los medios locales y los oficiales.
 
 ### B. Evidencia de Validación de Hashes
 - **Comprobación mediante `diff` y volcado de los ficheros locales y oficiales:**
@@ -39,10 +39,16 @@ La integridad criptográfica asegura que las imágenes del sistema operativo des
 
 Para cumplir con los requisitos de diseño y resiliencia del sistema, se han implementado y probado sucesivamente **tres alternativas de servidores de comunicaciones y cortafuegos** (`MikroTik`, `OPNsense` y `deb-comm`). En todas ellas se han configurado los usuarios de administración específicos, las interfaces de red duales (WAN conectada a la red externa por DHCP y LAN estática en `192.168.26.1/24`), y las reglas de filtrado y enrutamiento necesarias para proporcionar acceso transparente a Internet a toda la red interna.
 
-### A. Identificación y Respuesta ante Incidencias de Red
-Con el fin de cumplir con la detección de configuraciones críticas y tiempos de respuesta ante eventos no deseados:
-- Se implementó un bloqueo explícito hacia la IP externa `1.1.1.1` (Cloudflare) con registro obligatorio de paquetes (`log=yes` / `log prefix`).
-- **Interpretación del tiempo de respuesta e incidente:** Ante la suplantación o intento de salida por rutas no autorizadas, los firewalls generan de manera inmediata trazas de auditoría (`/log print`, *Live View*, y `dmesg`). Esto permite al administrador identificar el origen exacto (`192.168.26.109`) y cortar el tráfico de forma preventiva en menos de un segundo.
+### A. Matriz de Riesgos, Configuraciones Críticas y Tiempos de Respuesta (RTO)
+Con el objetivo de identificar posibles problemas en los sistemas, detectar configuraciones críticas y cuantificar los tiempos de respuesta ante una incidencia de instalación, arranque o caída de servicio, se ha elaborado la siguiente tabla de continuidad operativa basada en el repositorio centralizado de TrueNAS (`192.168.26.5`):
+
+| Sistema / Servicio | Configuración Crítica | Posible Incidencia / Punto Único de Fallo (SPOF) | Procedimiento de Respuesta y Recuperación | Tiempo de Respuesta Estimado (RTO) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Gateways (`MikroTik`, `OPNsense`, `deb-comm`)** | Tablas NAT, rutas por defecto y reglas de filtrado (`nftables.conf` / `config.xml`). | Corrupción de reglas de firewall, bloqueo accidental de interfaz LAN o fallo de arranque tras actualización. | Restauración del fichero de configuración (`.backup`, `.xml` o `.tar.gz`) desde el NAS o conmutación inmediata a gateway alternativo. | **$< 2\text{ minutos}$** |
+| **Almacenamiento NAS (`store-srvv`)** | Pool ZFS (`pool_backups`), permisos de datasets y servicio SSH/SMB. | Desmontaje del volumen de red o saturación de espacio que impida la recepción de copias. | Importación del pool ZFS (`zpool import`) y verificación de conectividad de red estática (`192.168.26.5`). | **$< 3\text{ minutos}$** |
+| **Clúster Proxmox (`N1-PX` a `N3-PX`)** | Ficheros de definición `/etc/pve/qemu-server/`, quórum Corosync y red del clúster. | Caída física o de arranque de uno de los nodos anfitriones del clúster. | Migración en caliente (*Live Migration*) o arranque de emergencia en nodo secundario desde snapshot en NAS. | **$< 30\text{ segundos}$** (en caliente) |
+| **Controlador de Dominio (`win-srvv`)** | Base de datos Active Directory (`NTDS.dit`), carpeta `SYSVOL` y zonas DNS. | Corrupción de la base de datos de identidades o fallo de resolución DNS en la red interna. | Arranque en Modo de Restauración de Servicios de Directorio (DSRM) y volcado desde copia de seguridad del NAS. | **$\approx 10\text{ minutos}$** |
+| **Clientes y Servicios (`deb-cli`, `debian-serveis`, `debian-dades`)** | Ficheros `/etc/network/interfaces`, demonios activos y perfiles en `/home`. | Fallo de disco del cliente o borrado accidental de ficheros de configuración de servicios. | Reinstalación limpia desde ISO verificada y volcado directo de `/etc` y `/home` vía `scp` desde TrueNAS. | **$\approx 8\text{ minutos}$** |
 
 ### B. Resumen de Configuración de Gateways
 | Servidor de Comunicaciones | Interfaz WAN (Externa) | Interfaz LAN (Interna) | Usuario de Administración | Estado de Verificación |
@@ -51,7 +57,7 @@ Con el fin de cumplir con la detección de configuraciones críticas y tiempos d
 | **OPNsense** | `wan` (`10.0.3.15` - DHCP) | `lan` (`192.168.26.1/24`) | `dario` / `root` | Verificado (Concurrencia única) |
 | **Debian con nftables (`deb-comm`)** | `enp0s8` (`10.0.3.15` - DHCP) | `enp0s3` (`192.168.26.1/24`) | `batoi` y `dario` (Sudoers) | Verificado (Concurrencia única) |
 
-### C. Evidencias de Ejecución y Configuración
+### C. Evidencias de Ejecución y Análisis de Trazas de Seguridad
 
 #### 1. MikroTik RouterOS
 - **Inicio de sesión con el usuario de administración creado:**
@@ -63,8 +69,8 @@ Con el fin de cumplir con la detección de configuraciones críticas y tiempos d
   > ![Exportar copia MikroTik](../evidencias/t5-exportar_copia_microtik.png)
 
 - **Filtrado de tráfico (Bloqueo a `1.1.1.1`) y verificación de registros (`/log print`):**
-  *(Se muestra la regla `drop` en la cadena `forward` con prefijo de registro `BLOQUEADO_1.1.1.1:`, el bloqueo efectivo del ping hacia `1.1.1.1` frente al tráfico permitido hacia `8.8.8.8` desde `deb-cli`, y las trazas capturadas en el log del router).*
   > ![Conexiones y Bloqueo MikroTik](../evidencias/t5-mikrotik_conexiones.png)
+  - **Interpretación técnica de la traza:** En la captura del registro se observa la etiqueta `BLOQUEADO_1.1.1.1: forward: in:ether1 out:ether2`, identificando que el paquete entra por la interfaz interna (`ether1`), intenta enrutarse hacia la salida (`ether2`) con protocolo `ICMP (type 8, code 0)` desde el cliente interno hacia `1.1.1.1`, siendo descartado al instante mientras el tráfico hacia `8.8.8.8` fluye con normalidad.
 
 #### 2. OPNsense
 - **Configuración del usuario de administración (`dario`):**
@@ -74,8 +80,8 @@ Con el fin de cumplir con la detección de configuraciones críticas y tiempos d
   > ![Descarga Backup OPNsense](../evidencias/t5-baja_bak_opnsense.png)
 
 - **Filtrado de tráfico (Bloqueo a `1.1.1.1`) y supervisión en tiempo real (*Live View*):**
-  *(Se muestra en el panel Live View de OPNsense el registro en rojo de los paquetes ICMP bloqueados por la regla `Bloqueo IP 1.1.1.1` en la interfaz LAN, contrastado con la pérdida del 100% de paquetes en el terminal de `deb-cli`).*
   > ![Conexiones y Bloqueo OPNsense](../evidencias/t5-opnsense_conexiones.png)
+  - **Interpretación técnica de la traza:** El panel *Live View* muestra en tiempo real la entrada marcada en rojo en la interfaz `LAN` (`Action: block`), detallando la dirección IP de origen del cliente (`deb-cli`), el destino `1.1.1.1`, el protocolo `icmp` y el nombre de la regla desencadenante (`Bloqueo IP 1.1.1.1`), confirmando el corte efectivo al 100% de pérdida de paquetes en el terminal cliente.
 
 #### 3. Servidor de Comunicaciones Debian (`deb-comm`)
 - **Creación del usuario de administración (`dario`) e inclusión en el grupo `sudo`:**
@@ -87,8 +93,8 @@ Con el fin de cumplir con la detección de configuraciones críticas y tiempos d
   > ![Backup debcomm](../evidencias/t5-backup_debcomm.png)
 
 - **Filtrado con `nftables` (Bloqueo a `1.1.1.1`) y trazas del núcleo (`dmesg`):**
-  *(Se observa la monitorización del kernel mediante `dmesg` registrando el prefijo `NFT_BLOQUEO_1.1.1.1` en los paquetes reenviados desde `enp0s3` hacia `enp0s8`, junto con la confirmación del corte de conexión en el cliente `deb-cli`).*
   > ![Conexiones y Bloqueo deb-comm](../evidencias/t5-deb-comm_conexiones.png)
+  - **Interpretación técnica de la traza:** La salida del kernel (`dmesg`) registra el prefijo personalizado `NFT_BLOQUEO_1.1.1.1:` junto con los parámetros de red `IN=enp0s3 OUT=enp0s8 SRC=192.168.26.x DST=1.1.1.1 PROTO=ICMP TYPE=8 CODE=0`. Esto demuestra que el motor `netfilter` intercepta y registra el paquete en la cadena `forward` antes de permitir su salida por la interfaz WAN.
 
 ---
 
@@ -99,9 +105,9 @@ Como pilar fundamental para la retención de datos y la política de resiliencia
 Se han configurado los parámetros de red estáticos, los accesos mediante usuarios de administración seguros, y se ha añadido un **disco virtual adicional** en el hipervisor dedicado a albergar el pool de almacenamiento y el dataset estructurado para la recepción de copias de seguridad y respaldos de imágenes de los sistemas críticos.
 
 ### A. Justificación Técnica: Qué, Cómo y Dónde se Almacena
-* **¿Qué se copia?** Archivos de configuración de red, scripts de automatización, bases de datos de servicios (`/etc`, `/home`, configuraciones de cortafuegos) y snapshots de máquinas virtuales. Se excluyen deliberadamente directorios temporales (`/tmp`), cachés de paquetes (`/var/cache/apt`) e historiales de sesión para optimizar el espacio y evitar corrupciones.
-* **¿Cómo se realiza?** Mediante compresión estructurada en paquetes `.tar.gz` con marcas temporales y transferencia segura por protocolo cifrado (`scp` / API).
-* **¿Dónde se aloja?** En un dataset ZFS dedicado en el servidor NAS de la red (`192.168.26.5:/mnt/pool_backups/backups`), garantizando redundancia y aislamiento frente a fallos en los nodos de producción.
+* **¿Qué se copia?** Archivos de configuración de red, scripts de automatización, bases de datos de servicios (`/etc`, `/home`, configuraciones de cortafuegos) y snapshots de máquinas virtuales. Se excluyen deliberadamente directorios temporales (`/tmp`), cachés de paquetes (`/var/cache/apt`), sistemas de ficheros virtuales (`/proc`, `/sys`) y registros rotados antiguos para optimizar el espacio de almacenamiento, reducir la ventana de transferencia por red y evitar inconsistencias.
+* **¿Cómo se realiza?** Mediante empaquetado y compresión estructurada en archivos `.tar.gz` (en entornos Linux/BSD) y archivos nativos de exportación (`.backup` en MikroTik, `.xml` en OPNsense), identificados con marcas temporales (`YYYYMMDD_HHMMSS`) y transferidos mediante canales cifrados (`scp` sobre SSH) o recursos compartidos autenticados (`SMB`).
+* **¿Dónde se aloja?** En un dataset ZFS dedicado y aislado en el servidor NAS de la red (`192.168.26.5:/mnt/pool_backups/backups`), aprovechando las capacidades de suma de verificación continua (*checksumming*) y resistencia contra corrupción silenciosa de datos que ofrece el sistema de archivos ZFS.
 
 ### B. Parámetros Técnicos de Almacenamiento
 - **Dirección IP LAN:** `192.168.26.5/24`
@@ -174,7 +180,7 @@ Se han realizado pruebas de migración de una máquina virtual y un contenedor e
 - **Valoración de mejoras:** El proceso se puede optimizar notablemente empleando almacenamiento compartido centralizado de alta velocidad (NFS/iSCSI sobre TrueNAS con discos NVMe o interfaces de red dedicadas a 10GbE), eliminando el trasvase físico de bloques de disco en caliente.
 
 #### 4. Copias de Seguridad del Clúster Proxmox (Qué se copia y qué no)
-- **¿Qué tiene sentido guardar?** Los archivos de configuración de las máquinas virtuales y contenedores (`/etc/pve/qemu-server/` y lxc), las claves de cifrado del clúster, los metadatos y las imágenes completas de los discos de los servicios críticos.
+- **¿Qué tiene sentido guardar?** Los archivos de configuración de las máquinas virtuales y contenedores (`/etc/pve/qemu-server/` y `/etc/pve/lxc/`), las claves de cifrado del clúster (`corosync.conf`), los metadatos y las imágenes completas de los discos de los servicios críticos.
 - **¿Qué NO tiene sentido guardar?** Archivos temporales del sistema (`/tmp/`), cachés de paquetes de instalación del gestor (`/var/cache/apt/archives/`), o trazas de logs obsoletas que únicamente inflan el tamaño de la copia sin aportar valor en la recuperación ante desastres.
 
 ### C. Evidencias del Clúster Proxmox
@@ -235,9 +241,13 @@ Para estructurar la gestión administrativa centralizada de identidades, directi
 
 Se ha configurado el servidor de monitorización basado en entornos Linux (`srv-monn`), los servidores dedicados a servicios (`debian-serveis`) y gestión de datos (`debian-dades`) dotados de herramientas de supervisión y administración activa, junto con el despliegue del entorno cliente de pruebas y validación operativo (`deb-cli`).
 
-### A. Justificación de Respaldos en Clientes Linux (`deb-cli`)
-* **¿Qué se copia en el cliente Linux?** Se respaldan las configuraciones de red locales (`/etc/network/interfaces`), ficheros de resolución de nombres y claves públicas/privadas de acceso SSH del usuario administrativo.
-* **¿Qué se descarta?** Directorios temporales del sistema y binarios del sistema operativo base, ya que al tratarse de un cliente efímero de pruebas, ante un fallo catastrófico resulta más eficiente desplegar una nueva plantilla que restaurar un volcado de binarios del sistema operativo.
+### A. Justificación de Respaldos en Clientes Linux (`deb-cli`) y Servidores de Servicios
+* **Cliente GNU/Linux (`deb-cli`):**
+  * *Qué se copia y por qué:* Se respaldan selectivamente los ficheros de configuración de red local (`/etc/network/interfaces`, `/etc/hosts`), las claves SSH de administración y el directorio de usuario (`/home/batoi` / `/home/dario`) para garantizar la continuidad inmediata del puesto de trabajo **PC-26** ante un fallo físico de almacenamiento.
+  * *Qué se descarta y por qué:* Se excluyen los directorios de binarios del sistema (`/usr`, `/bin`, `/lib`), cachés de paquetes (`/var/cache/apt`) y archivos temporales (`/tmp`). Al tratarse de un terminal cliente estandarizado, resulta mucho más ágil y limpio desplegar de nuevo el sistema base desde la ISO verificada y volcar únicamente la configuración personal del usuario que restaurar gigabytes de binarios del sistema operativo.
+* **Servidores de Servicios y Datos (`debian-serveis`, `debian-dades`, `srv-monn`):**
+  * *Qué se copia:* El directorio `/etc` completo (configuración de demonios, servicios web/datos y tareas programadas) y los volúmenes de datos de aplicación.
+  * *Qué se descarta:* Sistemas de archivos virtuales (`/proc`, `/sys`, `/dev`) y logs históricos rotados.
 
 ### B. Evidencias de Infraestructura
 - **Panel de herramientas de supervisión en `srv-monn`:**
@@ -352,3 +362,13 @@ Se comprueba mediante la creación del dataset y el recurso compartido que todos
   > ![Recurso Compartido TrueNAS](../evidencias/t5-apte_truenas_share.png)
 * **Vista General del Repositorio Consolidado:**
   > ![Repositorio Centralizado TrueNAS](../evidencias/t5-apte_nas_respositorio.png)
+
+---
+
+## 10. Conclusiones Técnicas y Dificultades Resueltas
+
+El despliegue integral de la infraestructura correspondiente a la **Tasca 5** en el puesto **PC-26** ha permitido consolidar un entorno empresarial realista, resiliente y completamente auditado. Durante la implantación se abordaron y resolvieron los siguientes retos técnicos:
+
+1. **Gestión de Concurrencia Única en Gateways:** Al desplegar tres cortafuegos distintos (`MikroTik`, `OPNsense` y `deb-comm`) configurados con la misma puerta de enlace interna (`192.168.26.1/24`), fue indispensable gestionar estrictamente su encendido exclusivo para evitar conflictos de direcciones IP y tablas ARP corruptas en la red LAN.
+2. **Estabilidad de Quórum en Clúster Proxmox:** La sincronización de los tres nodos (`N1-PX`, `N2-PX`, `N3-PX`) exigió verificar la baja latencia en la red interna `192.168.26.0/24` para mantener el quórum activo de Corosync y garantizar la eficacia de las migraciones en caliente entre contenedores LXC y máquinas virtuales.
+3. **Interoperabilidad en la Automatización de Respaldos:** Unificar las copias de seguridad de sistemas operativos heterogéneos (GNU/Linux, FreeBSD, RouterOS y Windows) hacia un único repositorio ZFS en TrueNAS requirió adaptar los protocolos de transferencia (`scp` con autenticación por clave/usuario y `SMB` mediante scripts PowerShell), estandarizando la nomenclatura para facilitar una auditoría y recuperación inmediata ante cualquier incidencia.
