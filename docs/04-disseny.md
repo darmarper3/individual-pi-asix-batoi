@@ -107,7 +107,7 @@ Se muestran las tablas de encaminamiento activas en las tres alternativas de ser
   
   ![Tabla de enrutamiento MikroTik](../evidencias/t4-ruta-mikrotik.png)
 
-- **2. OPNsense (`netstat -rn` / Interfaz Web Routes):**
+- **2. OPNsense (`netstat -rn`):**
   
   ![Tabla de enrutamiento OPNsense](../evidencias/t4-ruta-opnsense.png)
 
@@ -115,7 +115,7 @@ Se muestran las tablas de encaminamiento activas en las tres alternativas de ser
   
   ![Tabla de enrutamiento deb-comm](../evidencias/t4-ruta-debcomm.png)
 
-- **4. Comprobación de Tabla de Enrutamiento en Cliente (`deb-cli` - `ip route`):**
+- **4. Comprobación de Tabla de Enrutamiento en Cliente (`deb-cli` - `ip route show`):**
   
   En el cliente de pruebas (`deb-cli`), se confirma la obtención dinámica de IP vía DHCP (`192.168.26.109`) en el segmento `.50-.250` de la LAN, comprobando que la pasarela por defecto apunta directamente a `192.168.26.1`.
   
@@ -132,7 +132,7 @@ Detalle visual del direccionamiento IP, máscara de subred y estado de cada adap
   
   ![Interfaces MikroTik](../evidencias/t4-if-mikrotik.png)
 
-- **OPNsense (`ip a` / Consola):**
+- **OPNsense (`ifconfig` / Consola):**
   
   ![Interfaces OPNsense](../evidencias/t4-if-opnsense.png)
 
