@@ -83,11 +83,11 @@ Comprobación de la salida efectiva hacia la red exterior y el router de enlace 
     
     ![Pings Monitorización](../evidencias/t4-pings-srvmon.png)
 
-  - **Servidor de Datos (`debian-dades` - `192.168.26.8`):**
+  - **Servidor de Datos (`debian-dades`):**
     
     ![Pings Debian Dades](../evidencias/t4-pings-debian-dades.png)
 
-  - **Servidor de Servicios (`debian-serveis` - `192.168.26.9`):**
+  - **Servidor de Servicios (`debian-serveis`):**
     
     ![Pings Debian Serveis](../evidencias/t4-pings-debian-serveis.png)
 
